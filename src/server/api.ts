@@ -135,6 +135,7 @@ export async function handleApiAndStatic(
           name: guilds.name,
           prefix: guilds.prefix,
           categoryName: guilds.categoryName,
+          allowedGames: guilds.allowedGames,
           createdAt: guilds.createdAt,
         }).from(guilds).all();
 

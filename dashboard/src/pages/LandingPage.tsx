@@ -2,22 +2,24 @@ import React from 'react';
 import { 
   Trophy, 
   Gamepad2, 
-  ShieldCheck, 
   Radio, 
   ArrowRight, 
-  Key, 
   Users, 
   Zap, 
   Calendar, 
   CheckCircle2, 
-  Sparkles,
+  Server,
   Layers,
   ChevronRight,
-  ExternalLink
+  ExternalLink,
+  Flame,
+  ShieldAlert
 } from 'lucide-react';
+import type { GuildInfo } from '../components/Header';
 
 interface Lobby {
   lobbyId: string;
+  guildId?: string;
   title: string;
   tier: string;
   gameType: string;
@@ -30,149 +32,174 @@ interface LandingPageProps {
   lobbies: Lobby[];
   onSelectEvent: (lobbyId: string) => void;
   onNavigate: (page: string) => void;
+  activeGuild?: GuildInfo;
+  guildsCount: number;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
   lobbies,
   onSelectEvent,
   onNavigate,
+  activeGuild,
+  guildsCount,
 }) => {
   const ongoingLobbies = lobbies.filter((l) => l.status === 'OPEN' || l.status === 'LIVE');
   const featuredLobby = ongoingLobbies[0] || lobbies[0];
 
   const gamePresets = [
     { name: 'BGMI / PUBG Mobile', format: '25 Squads • Battle Royale', badge: 'BGMI', color: '#00F0FF' },
-    { name: 'Free Fire', format: '12 Squads • Rush Royale', badge: 'FREEFIRE', color: '#FFE600' },
+    { name: 'Free Fire', format: '12 Squads • Rush Royale', badge: 'FREEFIRE', color: '#FFDF00' },
     { name: 'Valorant', format: '5v5 Custom • Tactical FPS', badge: 'VALORANT', color: '#FF0055' },
     { name: 'Call of Duty Mobile', format: '25 Squads • BR Classic', badge: 'CODM', color: '#39FF14' },
     { name: 'Apex Legends', format: '20 Trios • Arena / BR', badge: 'APEX', color: '#00F0FF' },
-    { name: 'Custom Tournaments', format: 'Flexible 2 to 100 Teams', badge: 'CUSTOM', color: '#FFFFFF' },
+    { name: 'Custom Esports', format: 'Flexible 2 to 100 Teams', badge: 'CUSTOM', color: '#FFFFFF' },
   ];
 
   return (
-    <div className="space-y-16 pb-12">
+    <div className="space-y-12 sm:space-y-16 pb-12 font-mono">
       {/* ======================================================== */}
       {/* 1. INDUSTRIAL HERO SECTION                               */}
       {/* ======================================================== */}
-      <section className="relative border-b-4 border-black bg-[#11141D] p-8 md:p-14 shadow-[6px_6px_0px_#000] overflow-hidden">
-        {/* Background Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2433_1px,transparent_1px),linear-gradient(to_bottom,#1f2433_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none"></div>
+      <section className="relative border-4 border-black dark:bg-[#0D0F16] bg-white p-6 sm:p-10 md:p-14 shadow-[6px_6px_0px_#000] overflow-hidden transition-colors">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2433_1px,transparent_1px),linear-gradient(to_bottom,#1f2433_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 pointer-events-none"></div>
 
-        <div className="relative max-w-5xl mx-auto space-y-6 text-center md:text-left">
-          {/* Top Tag */}
-          <div className="inline-flex items-center space-x-2 border-2 border-black bg-[#00F0FF] text-black px-3.5 py-1 text-xs font-mono font-black uppercase shadow-[2px_2px_0px_#000]">
-            <Radio className="w-3.5 h-3.5 animate-pulse" />
-            <span>ENTERPRISE OPEN-SOURCE ESPORTS ENGINE</span>
+        <div className="relative max-w-5xl mx-auto space-y-6">
+          {/* Top Tag / Server Identity */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center space-x-2 border-2 border-black bg-[#00F0FF] text-black px-3 py-1 text-xs font-black uppercase shadow-[2px_2px_0px_#000]">
+              <Radio className="w-3.5 h-3.5 animate-pulse" />
+              <span>{activeGuild ? `COMMUNITY: ${activeGuild.name}` : 'ENTERPRISE ESPORTS ENGINE'}</span>
+            </div>
+
+            {activeGuild && (
+              <div className="inline-flex items-center space-x-1.5 border-2 border-black bg-[#FFDF00] text-black px-3 py-1 text-xs font-bold uppercase shadow-[2px_2px_0px_#000]">
+                <Server className="w-3.5 h-3.5" />
+                <span>PREFIX: {activeGuild.prefix}</span>
+              </div>
+            )}
           </div>
 
-          {/* Main Giant Headline */}
-          <h1 className="font-mono text-4xl sm:text-5xl md:text-7xl font-black uppercase text-white tracking-tight leading-none">
-            THE ZERO-LATENCY <br />
-            <span className="text-[#00F0FF] bg-black px-2 inline-block border-2 border-[#00F0FF] shadow-[4px_4px_0px_#00F0FF] my-1">
-              SCRIMS & TOURNAMENT
+          {/* Main Headline */}
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase dark:text-white text-zinc-950 tracking-tight leading-none">
+            HIGH-VELOCITY <br />
+            <span className="text-[#00F0FF] bg-black px-2 py-0.5 inline-block border-2 border-black shadow-[4px_4px_0px_#00F0FF] my-1.5">
+              SCRIMS & TOURNAMENTS
             </span> <br />
-            INFRASTRUCTURE
+            LIVE COMMAND CONSOLE
           </h1>
 
-          <p className="font-mono text-sm sm:text-base text-zinc-300 max-w-3xl leading-relaxed">
-            Engineered for high-stakes esports communities. Autonomous slot reservations, ephemeral Room ID & Password dispatch, 
-            instant waitlist overflow promotions, and automated points tables. Built to run <strong>100% on free-tier cloud servers</strong>.
+          <p className="text-xs sm:text-sm md:text-base dark:text-zinc-300 text-zinc-700 max-w-3xl leading-relaxed">
+            {activeGuild 
+              ? `Official tournament standings, team rosters, and real-time brackets for ${activeGuild.name}. Automated slot registrations, live points recalculation, and zero room leaks.`
+              : `The universal, open-source competitive esports platform for Discord. Autonomous slot reservations, ephemeral Room ID & Password dispatch, real-time Discord leaderboard channels, and instant waitlist promotions.`
+            }
           </p>
 
-          {/* Hero CTAs */}
-          <div className="flex flex-wrap items-center gap-4 pt-4 justify-center md:justify-start">
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
               onClick={() => onNavigate('events')}
-              className="border-2 border-black bg-[#39FF14] text-black px-6 py-3 font-mono text-sm font-black uppercase shadow-[4px_4px_0px_#000] hover:bg-[#32e012] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center space-x-2"
+              className="brutal-btn bg-[#00F0FF] text-black hover:bg-[#4df5ff] px-6 py-3 text-xs sm:text-sm"
             >
               <Calendar className="w-4 h-4" />
-              <span>EXPLORE ALL EVENTS ({lobbies.length})</span>
+              <span>EXPLORE ALL EVENTS</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 
             <button
-              onClick={() => onNavigate('admin')}
-              className="border-2 border-black bg-[#181C28] text-white px-6 py-3 font-mono text-sm font-black uppercase shadow-[4px_4px_0px_#000] hover:bg-zinc-800 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center space-x-2"
+              onClick={() => onNavigate('standings')}
+              className="brutal-btn dark:bg-[#12151E] dark:text-white bg-zinc-100 text-black hover:bg-zinc-200 px-6 py-3 text-xs sm:text-sm"
             >
-              <ShieldCheck className="w-4 h-4 text-[#FF0055]" />
-              <span>ORGANIZER COMMAND DECK</span>
+              <Trophy className="w-4 h-4 text-[#FFE600]" />
+              <span>LIVE LEADERBOARDS</span>
             </button>
 
-            <button
-              onClick={() => onNavigate('docs')}
-              className="border-2 border-black bg-[#FFE600] text-black px-5 py-3 font-mono text-sm font-black uppercase shadow-[4px_4px_0px_#000] hover:bg-yellow-400 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all"
+            <a
+              href="https://github.com/Crystal-Studio-Labs/Crystal-Scrims-Manager"
+              target="_blank"
+              rel="noreferrer"
+              className="brutal-btn bg-[#39FF14] text-black hover:bg-[#62ff44] px-5 py-3 text-xs sm:text-sm"
             >
-              SCORING RULES
-            </button>
-          </div>
-
-          {/* Quick Metrics Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-8 border-t-2 border-zinc-800">
-            <div className="border-2 border-black bg-[#090B10] p-4 shadow-[3px_3px_0px_#000]">
-              <span className="font-mono text-[11px] text-zinc-500 uppercase block">ACTIVE SCRIMS</span>
-              <span className="font-mono text-2xl font-black text-[#00F0FF]">{lobbies.length} TOURNAMENTS</span>
-            </div>
-            <div className="border-2 border-black bg-[#090B10] p-4 shadow-[3px_3px_0px_#000]">
-              <span className="font-mono text-[11px] text-zinc-500 uppercase block">SLOT ENGINE</span>
-              <span className="font-mono text-2xl font-black text-[#39FF14]">&lt;1MS RUSH</span>
-            </div>
-            <div className="border-2 border-black bg-[#090B10] p-4 shadow-[3px_3px_0px_#000]">
-              <span className="font-mono text-[11px] text-zinc-500 uppercase block">IDP DELIVERY</span>
-              <span className="font-mono text-2xl font-black text-[#FF0055]">100% EPHEMERAL</span>
-            </div>
-            <div className="border-2 border-black bg-[#090B10] p-4 shadow-[3px_3px_0px_#000]">
-              <span className="font-mono text-[11px] text-zinc-500 uppercase block">CLOUD COST</span>
-              <span className="font-mono text-2xl font-black text-[#FFE600]">$0 / FREE TIER</span>
-            </div>
+              <ExternalLink className="w-4 h-4" />
+              <span>BOT REPO</span>
+            </a>
           </div>
         </div>
       </section>
 
       {/* ======================================================== */}
-      {/* 2. FEATURED LIVE TOURNAMENT SPOTLIGHT                     */}
+      {/* 2. REAL-TIME PLATFORM METRICS LEDGER                     */}
       {/* ======================================================== */}
-      {featuredLobby && (
-        <section className="border-4 border-black bg-[#11141D] p-6 shadow-[6px_6px_0px_#000]">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-zinc-800 pb-4 mb-6">
-            <div className="flex items-center space-x-3">
-              <span className="w-3 h-3 rounded-full bg-[#39FF14] animate-ping"></span>
-              <span className="font-mono text-xs font-bold text-[#39FF14] uppercase tracking-wider">
-                FEATURED TOURNAMENT SPOTLIGHT
-              </span>
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'TOTAL TOURNAMENTS', val: lobbies.length, color: '#00F0FF', note: 'TRACKED SCRIMS' },
+          { label: 'ACTIVE / LIVE', val: ongoingLobbies.length, color: '#39FF14', note: 'SLOTS OPEN' },
+          { label: 'SERVERS CONNECTED', val: guildsCount, color: '#FFDF00', note: 'DISCORD GUILDS' },
+          { label: 'RUSH LATENCY', val: '< 0.8s', color: '#FF0055', note: 'ATOMIC CONCURRENCY' },
+        ].map((stat, i) => (
+          <div key={i} className="brutal-card p-4 sm:p-5 flex flex-col justify-between">
+            <span className="text-[10px] sm:text-xs font-bold dark:text-zinc-400 text-zinc-600 uppercase">
+              {stat.label}
+            </span>
+            <div className="text-2xl sm:text-4xl font-black my-2" style={{ color: stat.color }}>
+              {stat.val}
             </div>
-            <span className="font-mono text-xs text-zinc-400">
-              ID: <code className="text-[#00F0FF] bg-black px-2 py-0.5 border border-zinc-700">{featuredLobby.lobbyId}</code>
+            <span className="text-[9px] sm:text-[10px] dark:text-zinc-500 text-zinc-500 tracking-wider">
+              {stat.note}
             </span>
           </div>
+        ))}
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-            <div className="md:col-span-2 space-y-2">
+      {/* ======================================================== */}
+      {/* 3. FEATURED LIVE MATCH SPOTLIGHT                         */}
+      {/* ======================================================== */}
+      {featuredLobby && (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg sm:text-xl font-black uppercase dark:text-white text-zinc-900 flex items-center gap-2">
+              <Flame className="w-5 h-5 text-[#FF0055]" />
+              <span>FEATURED ACTIVE LOBBY</span>
+            </h2>
+            <button
+              onClick={() => onNavigate('events')}
+              className="text-xs font-bold text-[#00F0FF] hover:underline flex items-center gap-1"
+            >
+              VIEW ALL ({lobbies.length}) <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="brutal-card p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-l-8 border-l-[#00F0FF]">
+            <div className="space-y-2 max-w-2xl">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="border border-black bg-[#00F0FF] text-black text-[10px] font-mono font-bold px-2 py-0.5 shadow-[1px_1px_0px_#000]">
+                <span className="brutal-badge bg-[#00F0FF] text-black">
                   {featuredLobby.gameType}
                 </span>
-                <span className="border border-black bg-zinc-800 text-white text-[10px] font-mono font-bold px-2 py-0.5 shadow-[1px_1px_0px_#000]">
-                  TIER {featuredLobby.tier}
+                <span className="brutal-badge bg-[#FFDF00] text-black">
+                  {featuredLobby.tier}
                 </span>
-                <span className="border border-black bg-[#39FF14] text-black text-[10px] font-mono font-bold px-2 py-0.5 shadow-[1px_1px_0px_#000]">
-                  STATUS: {featuredLobby.status}
+                <span className="brutal-badge bg-[#39FF14] text-black">
+                  {featuredLobby.status}
                 </span>
               </div>
-              <h3 className="font-mono text-2xl md:text-3xl font-black uppercase text-white tracking-tight">
+
+              <h3 className="text-xl sm:text-2xl font-black uppercase dark:text-white text-black">
                 {featuredLobby.title}
               </h3>
-              <p className="font-mono text-xs text-zinc-400">
-                Total Capacity: <strong>{featuredLobby.totalSlots} Slots</strong> • Registered: <strong>{featuredLobby.createdAt.slice(0, 10)}</strong>
+
+              <p className="text-xs dark:text-zinc-400 text-zinc-600">
+                Lobby ID: <strong className="font-mono text-[#00F0FF]">{featuredLobby.lobbyId}</strong> • Total Slot Capacity: <strong className="font-mono dark:text-white text-black">{featuredLobby.totalSlots} SQUADS</strong>
               </p>
             </div>
 
-            <div className="flex md:justify-end">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
               <button
                 onClick={() => onSelectEvent(featuredLobby.lobbyId)}
-                className="w-full md:w-auto border-2 border-black bg-[#00F0FF] text-black px-6 py-3 font-mono text-xs font-bold uppercase shadow-[4px_4px_0px_#000] hover:bg-cyan-300 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center space-x-2"
+                className="brutal-btn bg-[#00F0FF] text-black hover:bg-cyan-300 px-6 py-3 text-xs sm:text-sm"
               >
-                <span>OPEN SQUADS & STANDINGS</span>
-                <ChevronRight className="w-4 h-4" />
+                <Trophy className="w-4 h-4" />
+                <span>VIEW LIVE STANDINGS</span>
               </button>
             </div>
           </div>
@@ -180,160 +207,71 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       )}
 
       {/* ======================================================== */}
-      {/* 3. MULTI-GAME PRESETS MATRIX                              */}
+      {/* 4. SUPPORTED ESPORTS PRESETS                             */}
       {/* ======================================================== */}
-      <section className="space-y-6">
-        <div className="border-b-2 border-black pb-3 flex items-center justify-between">
-          <div>
-            <h2 className="font-mono text-xl md:text-2xl font-black uppercase text-white tracking-tight flex items-center gap-2">
-              <Gamepad2 className="w-6 h-6 text-[#00F0FF]" /> SUPPORTED ESPORTS DISCIPLINES
-            </h2>
-            <p className="font-mono text-xs text-zinc-400 mt-1">
-              Custom preset slots, point systems, and match setups pre-configured out-of-the-box.
-            </p>
-          </div>
-        </div>
+      <section className="space-y-4">
+        <h2 className="text-lg sm:text-xl font-black uppercase dark:text-white text-zinc-900 flex items-center gap-2">
+          <Gamepad2 className="w-5 h-5 text-[#39FF14]" />
+          <span>MULTI-DISCIPLINE ESPORTS ENGINE</span>
+        </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {gamePresets.map((g) => (
-            <div
-              key={g.badge}
-              className="border-2 border-black bg-[#11141D] p-5 shadow-[4px_4px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span
-                  style={{ backgroundColor: g.color }}
-                  className="border border-black text-black font-mono text-xs font-black px-2 py-0.5 shadow-[2px_2px_0px_#000]"
-                >
-                  {g.badge}
+          {gamePresets.map((preset, idx) => (
+            <div key={idx} className="brutal-card p-5 space-y-3 hover:-translate-y-1 transition-transform">
+              <div className="flex items-center justify-between">
+                <span className="brutal-badge text-black" style={{ backgroundColor: preset.color }}>
+                  {preset.badge}
                 </span>
-                <Zap className="w-4 h-4 text-zinc-500" />
+                <span className="text-[10px] font-bold dark:text-zinc-500 text-zinc-600">PRESET #{idx + 1}</span>
               </div>
-              <h4 className="font-mono text-lg font-bold uppercase text-white mb-1">{g.name}</h4>
-              <p className="font-mono text-xs text-zinc-400">{g.format}</p>
+              <h3 className="text-base font-black uppercase dark:text-white text-black">
+                {preset.name}
+              </h3>
+              <p className="text-xs dark:text-zinc-400 text-zinc-600">
+                {preset.format}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ======================================================== */}
-      {/* 4. CORE ENGINE BENTO GRID                                 */}
+      {/* 5. PLAYER HOW-TO REGISTER CHEATSHEET                    */}
       {/* ======================================================== */}
-      <section className="space-y-6">
-        <div className="border-b-2 border-black pb-3">
-          <h2 className="font-mono text-xl md:text-2xl font-black uppercase text-white tracking-tight flex items-center gap-2">
-            <Layers className="w-6 h-6 text-[#39FF14]" /> ENGINE CAPABILITIES
-          </h2>
-          <p className="font-mono text-xs text-zinc-400 mt-1">
-            Why esports organizers and tournament administrators choose Crystal Scrims Manager.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1 */}
-          <div className="border-4 border-black bg-[#11141D] p-6 shadow-[5px_5px_0px_#000] space-y-3">
-            <div className="w-10 h-10 border-2 border-black bg-[#00F0FF] text-black flex items-center justify-center font-bold shadow-[2px_2px_0px_#000]">
-              <Key className="w-5 h-5" />
-            </div>
-            <h3 className="font-mono text-base font-black uppercase text-white">Ephemeral Room IDP</h3>
-            <p className="font-mono text-xs text-zinc-400 leading-relaxed">
-              No leaked passwords in public chat. Captains click a private Discord button that retrieves Room ID & Password ephemerally, ensuring only confirmed rosters join.
-            </p>
-          </div>
-
-          {/* Card 2 */}
-          <div className="border-4 border-black bg-[#11141D] p-6 shadow-[5px_5px_0px_#000] space-y-3">
-            <div className="w-10 h-10 border-2 border-black bg-[#39FF14] text-black flex items-center justify-center font-bold shadow-[2px_2px_0px_#000]">
-              <Users className="w-5 h-5" />
-            </div>
-            <h3 className="font-mono text-base font-black uppercase text-white">Atomic Slot Rush</h3>
-            <p className="font-mono text-xs text-zinc-400 leading-relaxed">
-              Sub-millisecond registration concurrency prevents race conditions. When max slots are filled, teams seamlessly overflow into a live prioritized waitlist.
-            </p>
-          </div>
-
-          {/* Card 3 */}
-          <div className="border-4 border-black bg-[#11141D] p-6 shadow-[5px_5px_0px_#000] space-y-3">
-            <div className="w-10 h-10 border-2 border-black bg-[#FF0055] text-white flex items-center justify-center font-bold shadow-[2px_2px_0px_#000]">
-              <Trophy className="w-5 h-5" />
-            </div>
-            <h3 className="font-mono text-base font-black uppercase text-white">Dynamic Points Table</h3>
-            <p className="font-mono text-xs text-zinc-400 leading-relaxed">
-              Automates PMGC/BGIS scoring with placement points and finish kills. Renders real-time leaderboards on both Discord embeds and the Web Dashboard.
-            </p>
-          </div>
-
-          {/* Card 4 */}
-          <div className="border-4 border-black bg-[#11141D] p-6 shadow-[5px_5px_0px_#000] space-y-3">
-            <div className="w-10 h-10 border-2 border-black bg-[#FFE600] text-black flex items-center justify-center font-bold shadow-[2px_2px_0px_#000]">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <h3 className="font-mono text-base font-black uppercase text-white">Auto-Outcome Broadcasts</h3>
-            <p className="font-mono text-xs text-zinc-400 leading-relaxed">
-              Pre-defined victory, defeat, and draw cards with celebratory GIFs sent straight to your designated results channel when organizers record match conclusions.
-            </p>
-          </div>
-
-          {/* Card 5 */}
-          <div className="border-4 border-black bg-[#11141D] p-6 shadow-[5px_5px_0px_#000] space-y-3">
-            <div className="w-10 h-10 border-2 border-black bg-[#00F0FF] text-black flex items-center justify-center font-bold shadow-[2px_2px_0px_#000]">
-              <Layers className="w-5 h-5" />
-            </div>
-            <h3 className="font-mono text-base font-black uppercase text-white">1-Click Server Wizard</h3>
-            <p className="font-mono text-xs text-zinc-400 leading-relaxed">
-              Run <code className="text-[#00F0FF]">/setup autostructure</code> and the bot automatically creates the category, registration channel, locked slotlist, and IDP channel.
-            </p>
-          </div>
-
-          {/* Card 6 */}
-          <div className="border-4 border-black bg-[#11141D] p-6 shadow-[5px_5px_0px_#000] space-y-3">
-            <div className="w-10 h-10 border-2 border-black bg-[#39FF14] text-black flex items-center justify-center font-bold shadow-[2px_2px_0px_#000]">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <h3 className="font-mono text-base font-black uppercase text-white">100% Free Hosting</h3>
-            <p className="font-mono text-xs text-zinc-400 leading-relaxed">
-              Ready-to-deploy configurations for Render, Koyeb, Fly.io, Railway, and Docker with zero paid dependencies. Uses free Turso LibSQL or local SQLite.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ======================================================== */}
-      {/* 5. QUICK WORKFLOW GUIDE                                   */}
-      {/* ======================================================== */}
-      <section className="border-4 border-black bg-[#090B10] p-8 shadow-[6px_6px_0px_#000]">
-        <h2 className="font-mono text-xl font-black uppercase text-white mb-6 text-center">
-          3-STEP OPERATIONAL FLOW
+      <section className="brutal-card p-6 sm:p-8 space-y-6">
+        <h2 className="text-lg sm:text-xl font-black uppercase dark:text-white text-zinc-900 flex items-center gap-2 border-b-2 dark:border-zinc-800 border-zinc-200 pb-3">
+          <Zap className="w-5 h-5 text-[#FFDF00]" />
+          <span>CAPTAIN & PLAYER QUICK START</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="border-2 border-zinc-800 bg-[#11141D] p-5 shadow-[3px_3px_0px_#000]">
-            <span className="font-mono text-xs font-black text-[#00F0FF] bg-black px-2 py-0.5 border border-zinc-700 block w-max mb-2">
-              STEP 01
-            </span>
-            <h4 className="font-mono text-sm font-bold uppercase text-white mb-1">PROVISION LOBBY</h4>
-            <p className="font-mono text-xs text-zinc-400">
-              Run <code className="text-[#00F0FF]">/scrim create</code> in Discord or provision via the web dashboard. Select your game preset, tier, and slots.
+          <div className="space-y-2">
+            <div className="w-7 h-7 bg-[#00F0FF] text-black font-black flex items-center justify-center border-2 border-black text-sm">
+              1
+            </div>
+            <h4 className="font-black uppercase text-sm dark:text-white text-black">REGISTER SQUAD</h4>
+            <p className="text-xs dark:text-zinc-400 text-zinc-600">
+              When registration opens in your server's registration channel, type <code>/register</code> or click the <strong>📝 Register Team</strong> button.
             </p>
           </div>
 
-          <div className="border-2 border-zinc-800 bg-[#11141D] p-5 shadow-[3px_3px_0px_#000]">
-            <span className="font-mono text-xs font-black text-[#39FF14] bg-black px-2 py-0.5 border border-zinc-700 block w-max mb-2">
-              STEP 02
-            </span>
-            <h4 className="font-mono text-sm font-bold uppercase text-white mb-1">LAUNCH REGISTRATIONS</h4>
-            <p className="font-mono text-xs text-zinc-400">
-              Run <code className="text-[#39FF14]">/scrim open</code>. Captains submit their squad lineup via modal popups and receive secure room credentials.
+          <div className="space-y-2">
+            <div className="w-7 h-7 bg-[#39FF14] text-black font-black flex items-center justify-center border-2 border-black text-sm">
+              2
+            </div>
+            <h4 className="font-black uppercase text-sm dark:text-white text-black">EPHEMERAL IDP</h4>
+            <p className="text-xs dark:text-zinc-400 text-zinc-600">
+              Once confirmed, verified captains click <strong>[🔑 View Room IDP]</strong>. Credentials are sent privately in Discord with zero room leak risk.
             </p>
           </div>
 
-          <div className="border-2 border-zinc-800 bg-[#11141D] p-5 shadow-[3px_3px_0px_#000]">
-            <span className="font-mono text-xs font-black text-[#FF0055] bg-black px-2 py-0.5 border border-zinc-700 block w-max mb-2">
-              STEP 03
-            </span>
-            <h4 className="font-mono text-sm font-bold uppercase text-white mb-1">CALCULATE & BROADCAST</h4>
-            <p className="font-mono text-xs text-zinc-400">
-              Record match finishes via <code className="text-[#FF0055]">/points add</code> or Web Studio. Broadcast victory cards via <code className="text-[#FF0055]">/announce result</code>.
+          <div className="space-y-2">
+            <div className="w-7 h-7 bg-[#FF0055] text-white font-black flex items-center justify-center border-2 border-black text-sm">
+              3
+            </div>
+            <h4 className="font-black uppercase text-sm dark:text-white text-black">LIVE STANDINGS</h4>
+            <p className="text-xs dark:text-zinc-400 text-zinc-600">
+              Watch real-time standings on this website or inside your server's auto-generated <code>📊・event-standings</code> channel.
             </p>
           </div>
         </div>

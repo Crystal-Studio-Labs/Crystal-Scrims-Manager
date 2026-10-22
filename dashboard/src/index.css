@@ -3,20 +3,82 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-[#090B10] text-zinc-100 antialiased overflow-x-hidden;
+  html {
+    color-scheme: dark light;
+  }
+  
+  html.dark body {
+    @apply bg-[#050507] text-zinc-100 antialiased overflow-x-hidden;
+  }
+
+  html:not(.dark) body {
+    @apply bg-[#F3F4F6] text-zinc-900 antialiased overflow-x-hidden;
   }
 }
 
-/* Brutalist Sharp Borders & Heavy Shadows */
+/* Neo-Brutalist Core Components with Dark / Light Mode Support */
 .brutal-card {
-  @apply bg-[#11141D] border-2 border-zinc-800 shadow-brutal;
+  @apply border-2 transition-all;
+  @apply dark:bg-[#0D0F16] dark:border-zinc-800 dark:text-zinc-100 dark:shadow-[4px_4px_0px_#000000];
+  @apply bg-white border-black text-zinc-900 shadow-[4px_4px_0px_#000000];
+}
+
+.brutal-card-hover {
+  @apply brutal-card hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#000000] dark:hover:border-zinc-700;
 }
 
 .brutal-btn {
-  @apply font-mono font-bold uppercase tracking-wider px-4 py-2 border-2 border-black shadow-brutal transition-all active:translate-x-1 active:translate-y-1 active:shadow-none;
+  @apply font-mono font-bold uppercase tracking-wider px-4 py-2 border-2 border-black transition-all inline-flex items-center justify-center gap-2;
+  @apply shadow-[3px_3px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none;
+}
+
+.brutal-btn-cyan {
+  @apply brutal-btn bg-[#00F0FF] text-black hover:bg-[#33F3FF];
+}
+
+.brutal-btn-lime {
+  @apply brutal-btn bg-[#39FF14] text-black hover:bg-[#5BFF3D];
+}
+
+.brutal-btn-yellow {
+  @apply brutal-btn bg-[#FFDF00] text-black hover:bg-[#FFE838];
+}
+
+.brutal-btn-pink {
+  @apply brutal-btn bg-[#FF0055] text-white hover:bg-[#FF3377];
+}
+
+.brutal-btn-dark {
+  @apply brutal-btn dark:bg-zinc-800 dark:text-white dark:border-zinc-700 dark:hover:bg-zinc-700 bg-zinc-900 text-white hover:bg-black;
+}
+
+.brutal-btn-outline {
+  @apply brutal-btn dark:bg-[#0D0F16] dark:text-zinc-200 dark:border-zinc-700 dark:hover:border-zinc-500 bg-white text-zinc-900 border-black hover:bg-zinc-100;
 }
 
 .brutal-badge {
-  @apply font-mono text-xs font-bold uppercase px-2 py-0.5 border border-black shadow-[2px_2px_0px_#000];
+  @apply font-mono text-xs font-bold uppercase px-2.5 py-0.5 border border-black shadow-[2px_2px_0px_#000000] inline-flex items-center gap-1;
+}
+
+.brutal-input {
+  @apply font-mono text-sm px-3 py-2 border-2 outline-none transition-all;
+  @apply dark:bg-[#090B10] dark:border-zinc-700 dark:text-white dark:focus:border-[#00F0FF];
+  @apply bg-white border-black text-black focus:border-[#00F0FF];
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #27272A;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb {
+  background: #A1A1AA;
+  border-radius: 0px;
 }

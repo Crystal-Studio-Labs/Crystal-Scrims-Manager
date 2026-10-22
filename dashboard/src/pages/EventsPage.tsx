@@ -3,23 +3,24 @@ import {
   Calendar, 
   Search, 
   Filter, 
-  ChevronRight, 
-  Users, 
   Trophy, 
-  Radio, 
+  Users, 
   Clock, 
-  CheckCircle2, 
-  AlertCircle,
-  Play
+  Gamepad2, 
+  ChevronRight,
+  Flame,
+  CheckCircle,
+  RefreshCw
 } from 'lucide-react';
 
 interface Lobby {
   lobbyId: string;
+  guildId?: string;
   title: string;
   tier: string;
   gameType: string;
   totalSlots: number;
-  reservedSlotsCount: number;
+  reservedSlotsCount?: number;
   status: string;
   createdAt: string;
   scheduledAt?: string | null;
@@ -38,36 +39,29 @@ export const EventsPage: React.FC<EventsPageProps> = ({
   onRefresh,
   loading,
 }) => {
-  const [filterTab, setFilterTab] = useState<'all' | 'ongoing' | 'upcoming' | 'past'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [gameFilter, setGameFilter] = useState('ALL');
-  const [tierFilter, setTierFilter] = useState('ALL');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ONGOING' | 'UPCOMING' | 'COMPLETED'>('ALL');
+  const [gameFilter, setGameFilter] = useState<string>('ALL');
 
-  // Categorize lobbies
-  const ongoingLobbies = lobbies.filter((l) => l.status === 'OPEN' || l.status === 'LIVE');
-  const upcomingLobbies = lobbies.filter((l) => l.status === 'SCHEDULED');
-  const pastLobbies = lobbies.filter((l) => l.status === 'COMPLETED' || l.status === 'CLOSED' || l.status === 'CANCELLED');
-
-  // Filter based on active tab and search
+  // Filter lobbies
   const filteredLobbies = lobbies.filter((lobby) => {
-    // 1. Tab filter
-    if (filterTab === 'ongoing' && lobby.status !== 'OPEN' && lobby.status !== 'LIVE') return false;
-    if (filterTab === 'upcoming' && lobby.status !== 'SCHEDULED') return false;
-    if (filterTab === 'past' && lobby.status !== 'COMPLETED' && lobby.status !== 'CLOSED' && lobby.status !== 'CANCELLED') return false;
+    // Status filter
+    if (statusFilter === 'ONGOING' && lobby.status !== 'OPEN' && lobby.status !== 'LIVE') return false;
+    if (statusFilter === 'UPCOMING' && lobby.status !== 'SCHEDULED' && lobby.status !== 'DRAFT') return false;
+    if (statusFilter === 'COMPLETED' && lobby.status !== 'CLOSED' && lobby.status !== 'COMPLETED') return false;
 
-    // 2. Game filter
+    // Game filter
     if (gameFilter !== 'ALL' && lobby.gameType !== gameFilter) return false;
 
-    // 3. Tier filter
-    if (tierFilter !== 'ALL' && lobby.tier !== tierFilter) return false;
-
-    // 4. Search query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      const matchTitle = lobby.title.toLowerCase().includes(q);
-      const matchId = lobby.lobbyId.toLowerCase().includes(q);
-      const matchGame = lobby.gameType.toLowerCase().includes(q);
-      if (!matchTitle && !matchId && !matchGame) return false;
+    // Search query
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      return (
+        lobby.title.toLowerCase().includes(q) ||
+        lobby.lobbyId.toLowerCase().includes(q) ||
+        lobby.tier.toLowerCase().includes(q) ||
+        lobby.gameType.toLowerCase().includes(q)
+      );
     }
 
     return true;
@@ -76,259 +70,178 @@ export const EventsPage: React.FC<EventsPageProps> = ({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'OPEN':
-        return (
-          <span className="border-2 border-black bg-[#39FF14] text-black text-[11px] font-mono font-black px-2.5 py-0.5 shadow-[2px_2px_0px_#000] flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-black animate-ping inline-block"></span>
-            REGISTRATION OPEN
-          </span>
-        );
       case 'LIVE':
-        return (
-          <span className="border-2 border-black bg-[#FF0055] text-white text-[11px] font-mono font-black px-2.5 py-0.5 shadow-[2px_2px_0px_#000] flex items-center gap-1.5 animate-pulse">
-            <Play className="w-3 h-3 fill-white" />
-            MATCH IN PROGRESS (LIVE)
-          </span>
-        );
+        return <span className="brutal-badge bg-[#39FF14] text-black animate-pulse">● LIVE / OPEN</span>;
       case 'SCHEDULED':
-        return (
-          <span className="border-2 border-black bg-[#00F0FF] text-black text-[11px] font-mono font-black px-2.5 py-0.5 shadow-[2px_2px_0px_#000] flex items-center gap-1.5">
-            <Clock className="w-3 h-3" />
-            UPCOMING SCHEDULED
-          </span>
-        );
-      case 'COMPLETED':
-        return (
-          <span className="border-2 border-black bg-[#FFE600] text-black text-[11px] font-mono font-black px-2.5 py-0.5 shadow-[2px_2px_0px_#000] flex items-center gap-1.5">
-            <CheckCircle2 className="w-3 h-3" />
-            COMPLETED
-          </span>
-        );
+        return <span className="brutal-badge bg-[#00F0FF] text-black">UPCOMING</span>;
       case 'CLOSED':
-        return (
-          <span className="border-2 border-black bg-zinc-800 text-zinc-300 text-[11px] font-mono font-black px-2.5 py-0.5 shadow-[2px_2px_0px_#000]">
-            REGISTRATION LOCKED
-          </span>
-        );
-      case 'CANCELLED':
-        return (
-          <span className="border-2 border-black bg-red-950 text-red-400 border-red-800 text-[11px] font-mono font-black px-2.5 py-0.5 shadow-[2px_2px_0px_#000]">
-            CANCELLED
-          </span>
-        );
+      case 'COMPLETED':
+        return <span className="brutal-badge bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-300 text-zinc-800">COMPLETED</span>;
       default:
-        return (
-          <span className="border border-zinc-700 bg-zinc-900 text-zinc-400 text-[11px] font-mono px-2 py-0.5">
-            {status}
-          </span>
-        );
+        return <span className="brutal-badge bg-[#FFDF00] text-black">{status}</span>;
+    }
+  };
+
+  const getGameColor = (gameType: string) => {
+    switch (gameType.toUpperCase()) {
+      case 'BGMI': return '#00F0FF';
+      case 'FREEFIRE': return '#FFDF00';
+      case 'VALORANT': return '#FF0055';
+      case 'CODM': return '#39FF14';
+      default: return '#00F0FF';
     }
   };
 
   return (
-    <div className="space-y-8 pb-12">
-      {/* Top Section Header */}
-      <div className="border-b-4 border-black bg-[#11141D] p-6 shadow-[5px_5px_0px_#000] flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 font-mono pb-12">
+      {/* Header Banner */}
+      <div className="border-4 border-black dark:bg-[#0D0F16] bg-white p-6 sm:p-8 shadow-[6px_6px_0px_#000] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#00F0FF] uppercase tracking-wider mb-1">
-            <Calendar className="w-4 h-4" />
-            <span>ESPORTS TOURNAMENTS & SCRIMS PORTAL</span>
+          <div className="inline-flex items-center space-x-2 border-2 border-black bg-[#FFDF00] text-black px-2.5 py-0.5 text-xs font-black uppercase mb-2">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>TOURNAMENT DIRECTORY</span>
           </div>
-          <h1 className="font-mono text-3xl md:text-4xl font-black uppercase text-white tracking-tight">
-            EVENTS DIRECTORY
+          <h1 className="text-2xl sm:text-4xl font-black uppercase dark:text-white text-zinc-950">
+            EVENTS & SCRIMS HUB
           </h1>
-          <p className="font-mono text-xs text-zinc-400 mt-1">
-            Browse ongoing live tournaments, upcoming scheduled matches, and historical scrim archives.
+          <p className="text-xs sm:text-sm dark:text-zinc-400 text-zinc-600 mt-1">
+            Browse ongoing, scheduled, and past esports events. Select any lobby to inspect live standings, team rosters, and rules.
           </p>
         </div>
 
         <button
           onClick={onRefresh}
-          className="border-2 border-black bg-[#00F0FF] text-black px-4 py-2 text-xs font-mono font-bold uppercase shadow-[3px_3px_0px_#000] hover:bg-cyan-300 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-1.5 self-start md:self-auto"
+          disabled={loading}
+          className="brutal-btn dark:bg-[#12151E] dark:text-white bg-zinc-100 text-black hover:bg-zinc-200 self-start md:self-auto text-xs"
         >
-          {loading ? 'REFRESHING...' : 'REFRESH EVENTS'}
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#00F0FF]' : ''}`} />
+          <span>REFRESH</span>
         </button>
       </div>
 
-      {/* Category Tabs: All, Ongoing, Upcoming, Past */}
-      <div className="flex flex-wrap items-center gap-2 border-b-2 border-zinc-800 pb-3">
-        <button
-          onClick={() => setFilterTab('all')}
-          className={`font-mono text-xs font-bold uppercase px-4 py-2 border-2 border-black shadow-[2px_2px_0px_#000] transition-all ${
-            filterTab === 'all'
-              ? 'bg-[#00F0FF] text-black -translate-y-0.5'
-              : 'bg-[#181C28] text-zinc-400 hover:text-white'
-          }`}
-        >
-          ALL EVENTS [{lobbies.length}]
-        </button>
-
-        <button
-          onClick={() => setFilterTab('ongoing')}
-          className={`font-mono text-xs font-bold uppercase px-4 py-2 border-2 border-black shadow-[2px_2px_0px_#000] transition-all flex items-center gap-1.5 ${
-            filterTab === 'ongoing'
-              ? 'bg-[#39FF14] text-black -translate-y-0.5'
-              : 'bg-[#181C28] text-zinc-400 hover:text-white'
-          }`}
-        >
-          <span className="w-2 h-2 rounded-full bg-[#39FF14] inline-block animate-pulse"></span>
-          ONGOING & LIVE [{ongoingLobbies.length}]
-        </button>
-
-        <button
-          onClick={() => setFilterTab('upcoming')}
-          className={`font-mono text-xs font-bold uppercase px-4 py-2 border-2 border-black shadow-[2px_2px_0px_#000] transition-all flex items-center gap-1.5 ${
-            filterTab === 'upcoming'
-              ? 'bg-[#FFE600] text-black -translate-y-0.5'
-              : 'bg-[#181C28] text-zinc-400 hover:text-white'
-          }`}
-        >
-          <Clock className="w-3.5 h-3.5" />
-          UPCOMING & FUTURE [{upcomingLobbies.length}]
-        </button>
-
-        <button
-          onClick={() => setFilterTab('past')}
-          className={`font-mono text-xs font-bold uppercase px-4 py-2 border-2 border-black shadow-[2px_2px_0px_#000] transition-all flex items-center gap-1.5 ${
-            filterTab === 'past'
-              ? 'bg-[#FF0055] text-white -translate-y-0.5'
-              : 'bg-[#181C28] text-zinc-400 hover:text-white'
-          }`}
-        >
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          PAST & ARCHIVED [{pastLobbies.length}]
-        </button>
-      </div>
-
-      {/* Filter and Search Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+      {/* Filter and Search Controls */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
         {/* Search Input */}
-        <div className="sm:col-span-6 relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+        <div className="md:col-span-5 relative">
+          <Search className="w-4 h-4 absolute left-3.5 top-3.5 dark:text-zinc-500 text-zinc-400" />
           <input
             type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search tournament title, lobby ID, or game..."
-            className="w-full bg-[#11141D] border-2 border-black pl-9 pr-4 py-2.5 font-mono text-xs text-white placeholder-zinc-500 shadow-[3px_3px_0px_#000] focus:border-[#00F0FF] outline-none"
+            placeholder="Search by title, event ID, or tier..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full brutal-input pl-10 pr-4 py-2.5 text-xs"
           />
         </div>
 
-        {/* Game Filter */}
-        <div className="sm:col-span-3">
+        {/* Status Filter Buttons */}
+        <div className="md:col-span-4 flex items-center gap-1.5 overflow-x-auto pb-1">
+          {(['ALL', 'ONGOING', 'UPCOMING', 'COMPLETED'] as const).map((st) => (
+            <button
+              key={st}
+              onClick={() => setStatusFilter(st)}
+              className={`px-3 py-2 text-xs font-bold uppercase border-2 border-black whitespace-nowrap transition-all ${
+                statusFilter === st
+                  ? 'bg-[#00F0FF] text-black shadow-[2px_2px_0px_#000]'
+                  : 'dark:bg-[#0D0F16] dark:text-zinc-400 bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+              }`}
+            >
+              {st}
+            </button>
+          ))}
+        </div>
+
+        {/* Game Filter Dropdown */}
+        <div className="md:col-span-3">
           <select
             value={gameFilter}
             onChange={(e) => setGameFilter(e.target.value)}
-            className="w-full bg-[#11141D] border-2 border-black px-3 py-2.5 font-mono text-xs text-white shadow-[3px_3px_0px_#000] focus:border-[#00F0FF] outline-none"
+            className="w-full brutal-input py-2.5 text-xs font-bold uppercase cursor-pointer"
           >
-            <option value="ALL">ALL GAMES</option>
-            <option value="BGMI">BGMI / PUBG Mobile</option>
-            <option value="FREEFIRE">Free Fire</option>
-            <option value="VALORANT">Valorant</option>
-            <option value="CODM">Call of Duty Mobile</option>
-            <option value="APEX">Apex Legends</option>
-            <option value="CUSTOM">Custom Game</option>
-          </select>
-        </div>
-
-        {/* Tier Filter */}
-        <div className="sm:col-span-3">
-          <select
-            value={tierFilter}
-            onChange={(e) => setTierFilter(e.target.value)}
-            className="w-full bg-[#11141D] border-2 border-black px-3 py-2.5 font-mono text-xs text-white shadow-[3px_3px_0px_#000] focus:border-[#00F0FF] outline-none"
-          >
-            <option value="ALL">ALL TIERS</option>
-            <option value="T1">Tier 1 (Elite)</option>
-            <option value="T2">Tier 2 (Challenger)</option>
-            <option value="T3">Tier 3 (Open)</option>
+            <option value="ALL">🎮 ALL DISCIPLINES</option>
+            <option value="BGMI">🔫 BGMI / PUBG</option>
+            <option value="FREEFIRE">🔥 FREE FIRE</option>
+            <option value="VALORANT">🎯 VALORANT</option>
+            <option value="CODM">🎖️ COD MOBILE</option>
+            <option value="APEX">⚡ APEX LEGENDS</option>
           </select>
         </div>
       </div>
 
       {/* Events Grid */}
       {filteredLobbies.length === 0 ? (
-        <div className="border-4 border-black bg-[#11141D] p-12 text-center shadow-[6px_6px_0px_#000] space-y-3">
-          <AlertCircle className="w-12 h-12 text-zinc-600 mx-auto" />
-          <h3 className="font-mono text-lg font-black uppercase text-white">NO TOURNAMENTS MATCH THIS FILTER</h3>
-          <p className="font-mono text-xs text-zinc-400 max-w-md mx-auto">
-            Try resetting your search query or create a new scrim lobby in Discord with <code className="text-[#00F0FF]">/scrim create</code> or the Organizer Deck!
+        <div className="brutal-card p-12 text-center space-y-3">
+          <Gamepad2 className="w-10 h-10 mx-auto dark:text-zinc-600 text-zinc-400" />
+          <h3 className="text-base font-black uppercase dark:text-white text-zinc-900">
+            NO TOURNAMENTS FOUND
+          </h3>
+          <p className="text-xs dark:text-zinc-400 text-zinc-600 max-w-md mx-auto">
+            No events match your current filter criteria. Try clearing search or selecting "ALL" disciplines.
           </p>
-          <button
-            onClick={() => {
-              setFilterTab('all');
-              setSearchQuery('');
-              setGameFilter('ALL');
-              setTierFilter('ALL');
-            }}
-            className="border-2 border-black bg-[#00F0FF] text-black px-4 py-2 font-mono text-xs font-bold uppercase shadow-[2px_2px_0px_#000] hover:bg-cyan-300"
-          >
-            CLEAR ALL FILTERS
-          </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredLobbies.map((lobby) => (
-            <div
-              key={lobby.lobbyId}
-              className="border-4 border-black bg-[#11141D] p-5 shadow-[5px_5px_0px_#000] flex flex-col justify-between hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[3px_3px_0px_#000] transition-all"
-            >
-              <div className="space-y-3">
-                {/* Badges Bar */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center space-x-1.5">
-                    <span className="border border-black bg-[#00F0FF] text-black font-mono text-[10px] font-black px-2 py-0.5 shadow-[1px_1px_0px_#000]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredLobbies.map((lobby) => {
+            const isLive = lobby.status === 'OPEN' || lobby.status === 'LIVE';
+            return (
+              <div 
+                key={lobby.lobbyId} 
+                className={`brutal-card p-6 flex flex-col justify-between hover:-translate-y-1 transition-all ${
+                  isLive ? 'border-l-8 border-l-[#39FF14]' : ''
+                }`}
+              >
+                <div className="space-y-4">
+                  {/* Top Badges */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span 
+                      className="brutal-badge text-black font-black"
+                      style={{ backgroundColor: getGameColor(lobby.gameType) }}
+                    >
                       {lobby.gameType}
                     </span>
-                    <span className="border border-black bg-zinc-800 text-white font-mono text-[10px] font-bold px-2 py-0.5 shadow-[1px_1px_0px_#000]">
-                      {lobby.tier}
+                    {getStatusBadge(lobby.status)}
+                  </div>
+
+                  {/* Title & Info */}
+                  <div>
+                    <span className="text-[10px] font-bold dark:text-zinc-500 text-zinc-500">
+                      EVENT #{lobby.lobbyId} • {lobby.tier}
                     </span>
+                    <h3 className="text-lg font-black uppercase dark:text-white text-zinc-900 mt-1 line-clamp-2">
+                      {lobby.title}
+                    </h3>
                   </div>
 
-                  <span className="font-mono text-[11px] text-zinc-500">
-                    ID: <strong className="text-zinc-200">{lobby.lobbyId}</strong>
-                  </span>
-                </div>
-
-                {/* Status Badge */}
-                <div>{getStatusBadge(lobby.status)}</div>
-
-                {/* Tournament Title */}
-                <h3 className="font-mono text-lg font-black uppercase text-white leading-snug line-clamp-2">
-                  {lobby.title}
-                </h3>
-
-                {/* Metrics */}
-                <div className="border-t-2 border-zinc-800 pt-3 space-y-2">
-                  <div className="flex items-center justify-between font-mono text-xs">
-                    <span className="text-zinc-400">Total Capacity:</span>
-                    <strong className="text-white">{lobby.totalSlots} Slots</strong>
-                  </div>
-                  {lobby.reservedSlotsCount > 0 && (
-                    <div className="flex items-center justify-between font-mono text-xs">
-                      <span className="text-zinc-400">Reserved / VIP:</span>
-                      <strong className="text-[#FFE600]">{lobby.reservedSlotsCount} Reserved</strong>
+                  {/* Capacity & Format Details */}
+                  <div className="border-t dark:border-zinc-800 border-zinc-200 pt-3 space-y-1.5 text-xs dark:text-zinc-400 text-zinc-600">
+                    <div className="flex justify-between items-center">
+                      <span>SLOT CAPACITY:</span>
+                      <strong className="dark:text-white text-black font-mono">
+                        {lobby.totalSlots} SQUADS
+                      </strong>
                     </div>
-                  )}
-                  <div className="flex items-center justify-between font-mono text-xs">
-                    <span className="text-zinc-400">Created:</span>
-                    <span className="text-zinc-500">{lobby.createdAt.slice(0, 10)}</span>
+                    <div className="flex justify-between items-center">
+                      <span>CREATED:</span>
+                      <span className="font-mono text-[11px]">
+                        {new Date(lobby.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Action Button */}
-              <div className="pt-5 mt-4 border-t-2 border-zinc-800">
-                <button
-                  onClick={() => onSelectEvent(lobby.lobbyId)}
-                  className="w-full border-2 border-black bg-[#39FF14] text-black py-2.5 font-mono text-xs font-black uppercase shadow-[3px_3px_0px_#000] hover:bg-[#32e012] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center space-x-1.5"
-                >
-                  <Users className="w-3.5 h-3.5" />
-                  <span>VIEW ROSTERS & LEADERBOARD</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
+                {/* Bottom Action Button */}
+                <div className="mt-6 pt-3 border-t dark:border-zinc-800 border-zinc-200">
+                  <button
+                    onClick={() => onSelectEvent(lobby.lobbyId)}
+                    className="w-full brutal-btn bg-[#00F0FF] text-black hover:bg-cyan-300 py-2.5 text-xs font-black flex items-center justify-center gap-1.5"
+                  >
+                    <Trophy className="w-3.5 h-3.5" />
+                    <span>VIEW LIVE STANDINGS</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

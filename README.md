@@ -75,39 +75,42 @@ Developed with ❤️ by **[Shuvransu Sekhar Sahoo](https://sahooshuvranshu.is-a
 
 Crystal Scrims Manager ships with a full-featured, responsive web dashboard built with **React**, **Vite**, **Tailwind CSS**, and **Lucide Icons**, styled in an **Industrial Neo-Brutalist Esports Theme**.
 
-### Dashboard Pages & Modules:
-1. **Landing Page (`#home`)**:
-   - Hero header featuring live platform counters (Total Events, Active Teams, Live Matches, Avg Registration Time $<1.2\text{s}$).
-   - System capability cards detailing Concurrency-Safe Rush, Ephemeral IDP, Real-Time Brackets, and Multi-DB compatibility.
-   - Comprehensive interactive Discord Slash Command catalog.
-2. **Events Hub (`#events`)**:
-   - Filter events by status: **ALL**, **ONGOING (LIVE)**, **UPCOMING**, and **COMPLETED**.
-   - Event summary cards showing game type, tier, confirmed slot counts, start times, and quick action buttons.
-3. **Dedicated Event Roster & Leaderboard Modal (`#event-modal`)**:
-   - Real-time slot breakdown displaying confirmed teams, captains, and waitlisted squads.
-   - Interactive live points table sorted by Total Points, Placement Points, and Finish Kills with official tie-breaker rules.
-4. **Admin Room & Credential Manager (`#admin`)**:
-   - Direct web-based Room ID & Password management.
-   - Constant-time `crypto.timingSafeEqual` Bearer token authentication against `ADMIN_API_SECRET`.
-   - Real-time status indicators and quick-launch links to Discord.
+### Web Portal Modules & Capabilities:
+1. **Multi-Server Customization & Switcher**:
+   - Community-aware architecture: select any connected Discord server from the header dropdown to view server-specific scrims, custom prefix, and allowed game modes.
+   - Deep-linking support via `?guild=GUILD_ID` for sharing direct community tournament links.
+2. **Ultra-Dark Obsidian & Brutalist Light Theme Support**:
+   - 1-click theme switcher in header (Sun/Moon) with preferences saved in `localStorage`.
+   - Dark theme: deep pitch obsidian (`#050507`), carbon surfaces (`#0D0F16`), sharp contrast borders, glowing cyber neon accents (`#00F0FF`, `#39FF14`, `#FFDF00`, `#FF0055`).
+   - Light theme: stark industrial brutalist canvas (`#F4F4F0`), pure white cards (`#FFFFFF`), solid 2px black borders, heavy black shadows.
+3. **Landing & Events Hub (`#landing` & `#events`)**:
+   - Real-time platform counters (Total Events, Active Matches, Connected Servers, Sub-second Concurrency).
+   - Filter events by status: **ALL**, **LIVE / ONGOING**, **UPCOMING**, and **COMPLETED**.
+   - Filter by esports discipline: **BGMI**, **Free Fire**, **Valorant**, **CODM**, **Apex Legends**.
+4. **Dedicated Event Standings & Rosters (`#event-detail`)**:
+   - **Live Standings**: Rank `#1` to `#25`, placement points, finish kills, total score, and official tie-breakers.
+   - **Confirmed Rosters**: Slot list, captain user IDs, and real-time check-in badges.
+   - **Waitlist Queue**: Real-time position tracking for auto-promoted squads.
+   - **Scoring Rules Matrix**: BGIS / PMGC / FFWS point systems.
+   - *100% focused on players and spectators — zero administrative clutter (all staff actions are executed securely via Discord slash commands).*
 
 ```
-+-------------------------------------------------------------------------+
-| [💎 CRYSTAL SCRIMS MANAGER]       [Home]  [Events]  [Commands]  [Admin] |
-+-------------------------------------------------------------------------+
-|                                                                         |
-|  ⚡ THE NEXT-GEN ESPORTS SCRIMS ENGINE                                  |
-|  High-Velocity Tournament & Scrim Orchestration for Discord             |
-|                                                                         |
-|  +--------------------+  +--------------------+  +--------------------+ |
-|  | TOTAL EVENTS: 42   |  | REGISTERED: 620    |  | LIVE LOBBIES: 3    | |
-|  +--------------------+  +--------------------+  +--------------------+ |
-|                                                                         |
-|  [🔥 ONGOING EVENTS]                                                    |
-|  +-------------------------------------------------------------------+  |
-|  | #104 - BGMI Tier 1 Championship | 24/25 SLOTS | [VIEW LEADERBOARD] |  |
-|  +-------------------------------------------------------------------+  |
-+-------------------------------------------------------------------------+
++-----------------------------------------------------------------------------------+
+| [💎 CRYSTAL SCRIMS]   [Server: All Servers ▼]   [Overview] [Events] [Standings] ☀️ |
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|  ⚡ THE NEXT-GEN ESPORTS SCRIMS ENGINE                                            |
+|  High-Velocity Tournament & Scrim Operations Portal                               |
+|                                                                                   |
+|  +--------------------+  +--------------------+  +--------------------+           |
+|  | TOTAL EVENTS: 42   |  | REGISTERED: 620    |  | LIVE LOBBIES: 3    |           |
+|  +--------------------+  +--------------------+  +--------------------+           |
+|                                                                                   |
+|  [🔥 ONGOING EVENTS]                                                              |
+|  +-----------------------------------------------------------------------------+  |
+|  | #104 - BGMI Tier 1 Championship | 24/25 SLOTS | [VIEW LIVE STANDINGS]       |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+
 ```
 
 ---
