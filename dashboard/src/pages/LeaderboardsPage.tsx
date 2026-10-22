@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from '../config/api';
 import { Trophy, Search, ChevronRight, RefreshCw, AlertCircle, Sparkles } from 'lucide-react';
 
 interface Lobby {
@@ -34,7 +35,7 @@ export const LeaderboardsPage: React.FC<LeaderboardsPageProps> = ({
     if (!id) return;
     try {
       setLoading(true);
-      const res = await fetch(`/api/v1/public/leaderboard/${id}`);
+      const res = await fetch(`${API_BASE}/api/v1/public/leaderboard/${id}`);
       const data = await res.json();
       if (data.success && data.results) {
         setLeaderboard(data.results);

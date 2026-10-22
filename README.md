@@ -28,13 +28,11 @@ Developed with ❤️ by **[Shuvransu Sekhar Sahoo](https://sahooshuvranshu.is-a
 - [🎮 Multi-Game Presets & Point Systems](#-multi-game-presets--point-systems)
 - [🛡️ Anti-Misclick, Expiration & Security Safeguards](#️-anti-misclick-expiration--security-safeguards)
 - [🚀 Quick Start (Local Development)](#-quick-start-local-development)
-- [☁️ 100% Free-Tier Cloud Deployment Guide](#️-100-free-tier-cloud-deployment-guide)
-  - [Render (Web Service + Uptime Keep-Alive)](#option-a-render-recommended-free)
-  - [Fly.io (Global Edge Containers)](#option-b-flyio)
-  - [Koyeb (Serverless MicroVMs)](#option-c-koyeb)
-  - [Railway (Instant Deployment)](#option-d-railway)
-  - [Docker / Self-Hosted VPS](#option-e-docker--self-hosted-vps)
-  - [Turso Database Setup (Free 9GB LibSQL)](#option-f-turso-database-setup-free-9gb)
+- [☁️ Cloud Hosting & Deployment Guide](#️-cloud-hosting--deployment-guide)
+  - [Architectural Decision Matrix](#️-architectural-decision-matrix-which-option-should-you-choose)
+  - [Option 1: Hybrid (All-In-One Monolith) — RECOMMENDED](#-option-1-hybrid-all-in-one-monolith--recommended-100-free)
+  - [Option 2: Decoupled Multi-Tier Stack (Frontend + Backend + Cloud DB)](#-option-2-decoupled-multi-tier-stack-frontend--backend--cloud-db)
+  - [Option 3: Docker & Self-Hosted VPS Deployment](#-option-3-docker--self-hosted-vps-deployment)
 - [⚙️ Environment Variables Reference](#️-environment-variables-reference)
 - [👨‍💻 Developer & Organization Credits](#-developer--organization-credits)
 - [📄 License](#-license)
@@ -330,75 +328,152 @@ Visit `http://localhost:5173` to explore the Web Dashboard and test your bot com
 
 ---
 
-## ☁️ 100% Free-Tier Cloud Deployment Guide
+## ☁️ Cloud Hosting & Deployment Guide
 
-Crystal Scrims Manager is fully configured with multi-cloud infrastructure manifests so you can deploy it **100% free of charge**.
+Crystal Scrims Manager is engineered modularly across three architectural tiers:
+- 🎨 **Frontend**: Industrial Neo-Brutalist React SPA in `dashboard/`.
+- ⚙️ **Backend**: Discord Bot gateway client, in-memory mutex, cron scheduler, and REST API in `src/`.
+- 💾 **Database**: Agnostic Drizzle ORM connecting to Turso (LibSQL), SQLite, or PostgreSQL.
 
-### Option A: Render (Recommended Free)
-1. Push your repository to GitHub.
-2. Log into [Render](https://render.com) and click **New Web Service**.
-3. Link your repository. Render will automatically detect [`render.yaml`](render.yaml).
-4. Configure Environment Variables:
-   - `DISCORD_TOKEN`: Your Discord Bot Token.
-   - `DISCORD_CLIENT_ID`: Your Discord Client ID.
-   - `DB_DRIVER`: `turso`
-   - `TURSO_DATABASE_URL`: `libsql://your-db.turso.io`
-   - `TURSO_AUTH_TOKEN`: Your Turso auth token.
-   - `ADMIN_API_SECRET`: A secure random password.
-5. **24/7 Keep-Alive Setup**:
-   - Register a free account on [UptimeRobot](https://uptimerobot.com/) or [cron-job.org](https://cron-job.org/).
-   - Add an HTTP monitor pinging: `https://your-app.onrender.com/health` every **10 minutes**.
-   - *Your bot stays awake 24/7 with zero cost!*
+Depending on your server scale and hosting preferences, you can deploy using either **Hybrid (All-in-One)** or a **Decoupled (Multi-Tier)** stack.
 
-### Option B: Fly.io
-The repository includes a ready-to-use [`fly.toml`](fly.toml):
+---
+
+### ⚖️ Architectural Decision Matrix: Which Option Should You Choose?
+
+| Feature | 🏆 Option 1: Hybrid (All-in-One) | ⚡ Option 2: Decoupled (Split Stack) | 🐳 Option 3: Docker / VPS |
+| :--- | :--- | :--- | :--- |
+| **Architecture** | Bot + Dashboard + API in 1 process | Frontend (Vercel) + Backend (Render) + DB (Turso) | Full container on private VPS |
+| **Setup Time** | **5 minutes** (Single service) | **10 minutes** (Linked services) | **2 minutes** (`docker compose`) |
+| **Monthly Cost** | **$0 / 100% Free** | **$0 / 100% Free** | $0 (if existing VPS / local homelab) |
+| **Dashboard Speed**| Standard Container (~200ms) | **Global Edge CDN (<50ms)** | Instant local / VPS latency |
+| **CORS Config** | Zero CORS needed (Same-origin `/api`) | Built-in CORS preflight enabled | Zero CORS needed |
+| **Recommended For** | **Esports communities & 95% of servers** | **Large tournament orgs with high web traffic** | **Self-hosters with a VPS or home server** |
+
+---
+
+### 🏆 Option 1: Hybrid (All-In-One Monolith) — RECOMMENDED (100% Free)
+
+In Hybrid mode, a single free container (Render, Koyeb, or Railway) runs both the **Discord Bot** and serves the **Web Dashboard** on port 8080. You manage only one service, with zero CORS issues.
+
+#### Step 1: Create Your Free Cloud Database (Turso)
+Turso provides 9GB storage and 1 Billion reads/month on LibSQL with zero cold-sleep:
 ```bash
-# Install flyctl
-curl -L https://fly.io/install.sh | sh
-
-# Launch application
-fly launch --no-deploy
-fly secrets set DISCORD_TOKEN="your_token" DISCORD_CLIENT_ID="your_client_id" DB_DRIVER="turso" TURSO_DATABASE_URL="libsql://..." TURSO_AUTH_TOKEN="..." ADMIN_API_SECRET="..."
-fly deploy
-```
-
-### Option C: Koyeb
-The repository includes a configured [`koyeb.yaml`](koyeb.yaml):
-1. Sign up on [Koyeb](https://www.koyeb.com).
-2. Connect your GitHub repository.
-3. Import `koyeb.yaml` or set build command `npm run build && npm --prefix dashboard run build` and run command `npm start`.
-4. Add environment secrets.
-
-### Option D: Railway
-The repository includes a configured [`railway.toml`](railway.toml):
-1. Create a new project on [Railway](https://railway.app).
-2. Select **Deploy from GitHub repo**.
-3. Add environment variables in the Railway dashboard.
-
-### Option E: Docker / Self-Hosted VPS
-The repository includes production-optimized [`Dockerfile`](Dockerfile) and [`docker-compose.yml`](docker-compose.yml):
-```bash
-# Build and run in detached mode
-docker compose up -d --build
-
-# View real-time logs
-docker compose logs -f
-```
-
-### Option F: Turso Database Setup (Free 9GB)
-Turso provides 9GB of free storage and 1 Billion reads per month on LibSQL:
-```bash
-# Install Turso CLI
+# 1. Install Turso CLI
 curl -sSfL https://get.tur.so/install.sh | bash
 
-# Create database
+# 2. Authenticate & create database
+turso auth signup
 turso db create crystal-scrims
 
-# Get connection details
+# 3. Retrieve connection credentials
 turso db show crystal-scrims --url
+# Outputs: libsql://crystal-scrims-[org].turso.io
+
 turso db tokens create crystal-scrims
+# Outputs: eyJhbGciOi... (your secret auth token)
 ```
-Copy the URL (`libsql://...`) and token into your `.env` as `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`.
+
+#### Step 2: Deploy to Render (Free Web Service)
+1. Fork or push this repository to your GitHub account.
+2. Log into [Render](https://render.com) and click **New + > Web Service**.
+3. Select your repository.
+4. Set the build and start commands:
+   * **Build Command**: `npm install && npm run build && npm --prefix dashboard install && npm --prefix dashboard run build`
+   * **Start Command**: `npm start`
+5. Under **Advanced > Environment Variables**, add:
+   * `DISCORD_TOKEN`: Your bot token from Discord Developer Portal.
+   * `DISCORD_CLIENT_ID`: Your Discord application ID.
+   * `DB_DRIVER`: `turso`
+   * `TURSO_DATABASE_URL`: `libsql://crystal-scrims-[org].turso.io`
+   * `TURSO_AUTH_TOKEN`: Your Turso JWT auth token.
+   * `ADMIN_API_KEY`: A secure random password for dashboard administrative actions.
+   * `PORT`: `8080`
+6. Click **Deploy Web Service**.
+
+#### Step 3: Keep Awake 24/7 for Free
+Free-tier Web Services go to sleep after 15 minutes of HTTP inactivity. Crystal Scrims Manager includes a built-in lightweight `/health` endpoint:
+1. Create a free account on [UptimeRobot](https://uptimerobot.com/) or [cron-job.org](https://cron-job.org/).
+2. Add an **HTTP(s) Monitor** with an interval of **10 minutes**:
+   * URL: `https://your-app-name.onrender.com/health`
+3. *Your Discord Bot and Web Dashboard stay awake 24/7 for $0 forever!*
+
+---
+
+### ⚡ Option 2: Decoupled Multi-Tier Stack (Frontend + Backend + Cloud DB)
+
+If you want the Web Dashboard hosted on a global Edge CDN (Vercel or Netlify) with sub-50ms loading times worldwide, deploy the three tiers separately:
+
+```
+[Web Users] ---> [Frontend: Vercel / Netlify (Global CDN)]
+                          |  (REST API calls with Bearer Token)
+                          v
+[Discord Gateway] <---> [Backend: Render / Fly.io (Bot + API Server)]
+                                  |
+                                  v
+                        [Database: Turso / Supabase]
+```
+
+#### Tier 1: Cloud Database (Turso or Supabase)
+1. Follow **Step 1** above to provision a Turso LibSQL database (or create a free PostgreSQL project on [Supabase](https://supabase.com)).
+2. Push your schema from your local terminal:
+```bash
+# Push tables to your remote database
+npm run db:push
+```
+
+#### Tier 2: Backend (Discord Bot + REST API on Render / Fly.io / Koyeb)
+1. Deploy a **Web Service** on Render or Koyeb using:
+   * **Build Command**: `npm install && npm run build`
+   * **Start Command**: `npm start`
+   * **Environment Variables**: `DISCORD_TOKEN`, `DISCORD_CLIENT_ID`, `DB_DRIVER=turso`, `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `ADMIN_API_KEY`.
+2. Note your backend URL (e.g. `https://crystal-scrims-api.onrender.com`).
+3. Setup UptimeRobot on `https://crystal-scrims-api.onrender.com/health` to keep the bot connected to the Discord Gateway.
+
+#### Tier 3: Frontend (Web Dashboard on Vercel or Netlify)
+
+##### Deploying on Vercel:
+1. Log into [Vercel](https://vercel.com) and click **Add New > Project**.
+2. Select your `Crystal-Scrims-Manager` repository.
+3. Configure project settings:
+   * **Framework Preset**: `Vite`
+   * **Root Directory**: `dashboard`
+   * **Build Command**: `npm run build`
+   * **Output Directory**: `dist`
+4. Add Environment Variable:
+   * **`VITE_API_BASE_URL`**: `https://crystal-scrims-api.onrender.com` (your backend URL from Tier 2).
+5. Click **Deploy**. Vercel will deploy the Neo-Brutalist dashboard to an instant global URL (e.g., `https://crystal-scrims.vercel.app`).
+
+##### Deploying on Netlify:
+The repository includes a root [`netlify.toml`](netlify.toml) configured for zero-setup deployment:
+1. Connect your repository on [Netlify](https://www.netlify.com).
+2. Netlify auto-detects `netlify.toml` (Base: `dashboard`, Publish: `dist`).
+3. Under **Site Configuration > Environment Variables**, add:
+   * `VITE_API_BASE_URL`: `https://crystal-scrims-api.onrender.com`
+4. Click **Deploy Site**.
+
+---
+
+### 🐳 Option 3: Docker & Self-Hosted VPS Deployment
+
+For VPS hosting (Hetzner, DigitalOcean, Linode, AWS EC2, or a home server):
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Crystal-Studio-Labs/Crystal-Scrims-Manager.git
+cd Crystal-Scrims-Manager
+
+# 2. Configure environment
+cp .env.example .env
+nano .env
+
+# 3. Launch with Docker Compose
+docker compose up -d --build
+
+# 4. View real-time container logs
+docker compose logs -f
+```
+The Docker container builds both the Discord bot and the compiled dashboard SPA, with a persistent SQLite storage volume mounted to `/app/data/local.db`.
 
 ---
 
@@ -414,7 +489,8 @@ Copy the URL (`libsql://...`) and token into your `.env` as `TURSO_DATABASE_URL`
 | `TURSO_DATABASE_URL` | If Turso | — | LibSQL connection URL (`libsql://...`). |
 | `TURSO_AUTH_TOKEN` | If Turso | — | LibSQL authentication token. |
 | `PORT` | No | `8080` | Port for the HTTP health server, dashboard, and REST API. |
-| `ADMIN_API_SECRET` | No | `crystal_admin_dev_secret_2026` | Bearer token secret protecting `/api/scrims/*` endpoints. |
+| `ADMIN_API_KEY` | No | `crystal-admin-secret-2026` | Bearer token secret protecting `/api/v1/admin/*` endpoints. |
+| `VITE_API_BASE_URL` | No | `""` (Empty = same origin) | Frontend env var on Vercel/Netlify pointing to backend URL. |
 | `DEFAULT_ORGANIZER_ROLE`| No | `Scrim Organizer` | Default role name assigned Scrim Organizer permissions. |
 
 ---

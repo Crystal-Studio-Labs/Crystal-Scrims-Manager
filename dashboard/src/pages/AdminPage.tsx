@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from '../config/api';
 import { 
   ShieldCheck, 
   Key, 
@@ -58,7 +59,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     }
 
     try {
-      const res = await fetch(`/api/v1/admin/scrims/${selectedLobbyId}/action`, {
+      const res = await fetch(`${API_BASE}/api/v1/admin/scrims/${selectedLobbyId}/action`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +84,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     if (!selectedLobbyId || !scoreTeam) return;
 
     try {
-      const res = await fetch('/api/v1/admin/points/add', {
+      const res = await fetch(`${API_BASE}/api/v1/admin/points/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

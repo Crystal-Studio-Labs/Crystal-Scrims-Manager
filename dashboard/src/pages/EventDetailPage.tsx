@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from '../config/api';
 import { 
   ArrowLeft, 
   Users, 
@@ -83,7 +84,7 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
     try {
       setLoading(true);
       // Fetch slotlist
-      const slotRes = await fetch(`/api/v1/public/slotlist/${lobbyId}`);
+      const slotRes = await fetch(`${API_BASE}/api/v1/public/slotlist/${lobbyId}`);
       const slotData = await slotRes.json();
       if (slotData.success) {
         setLobby(slotData.lobby);
@@ -92,7 +93,7 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
       }
 
       // Fetch leaderboard
-      const leadRes = await fetch(`/api/v1/public/leaderboard/${lobbyId}`);
+      const leadRes = await fetch(`${API_BASE}/api/v1/public/leaderboard/${lobbyId}`);
       const leadData = await leadRes.json();
       if (leadData.success && leadData.results) {
         setLeaderboard(leadData.results);
@@ -118,7 +119,7 @@ export const EventDetailPage: React.FC<EventDetailPageProps> = ({
   const handleSaveIdp = async () => {
     if (!adminRoomId || !adminRoomPass) return;
     try {
-      const res = await fetch(`/api/v1/admin/scrims/${lobbyId}/action`, {
+      const res = await fetch(`${API_BASE}/api/v1/admin/scrims/${lobbyId}/action`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
