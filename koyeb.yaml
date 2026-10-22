@@ -1,0 +1,18 @@
+name: crystal-scrims-manager
+type: web
+regions:
+  - fra
+instance_type: nano
+ports:
+  - port: 8080
+    path: /
+env:
+  PORT: "8080"
+  DB_DRIVER: "sqlite"
+  DB_SQLITE_PATH: "/app/data/local.db"
+routes:
+  - path: /
+    port: 8080
+volumes:
+  - name: bot_data
+    mount_path: /app/data

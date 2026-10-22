@@ -1,18 +1,23 @@
-# Multi-stage lightweight production build
+# Multi-stage lightweight production build for Bot + Dashboard SPA
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install build dependencies
+# 1. Build Backend
 COPY package*.json ./
 RUN npm ci
-
-# Copy source code and build
-COPY tsconfig.json ./
+COPY tsconfig.json drizzle.config.ts ./
 COPY src/ ./src/
 RUN npm run build
 
-# Production runtime stage (ultra-lean)
+# 2. Build Dashboard Frontend
+WORKDIR /app/dashboard
+COPY dashboard/package*.json ./
+RUN npm ci
+COPY dashboard/ ./
+RUN npm run build
+
+# 3. Production Runtime Stage (Ultra-lean)
 FROM node:20-alpine AS runner
 
 WORKDIR /app
@@ -23,9 +28,13 @@ ENV PORT=8080
 COPY package*.json ./
 RUN npm ci --omit=dev
 
+# Copy backend compiled output
 COPY --from=builder /app/dist ./dist
 
-# Create volume mount point for local sqlite database persistence if used
+# Copy dashboard compiled frontend
+COPY --from=builder /app/dashboard/dist ./dashboard/dist
+
+# SQLite persistence volume mount
 VOLUME ["/app/data"]
 
 EXPOSE 8080

@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#090B10] text-zinc-100 antialiased overflow-x-hidden;
+  }
+}
+
+/* Brutalist Sharp Borders & Heavy Shadows */
+.brutal-card {
+  @apply bg-[#11141D] border-2 border-zinc-800 shadow-brutal;
+}
+
+.brutal-btn {
+  @apply font-mono font-bold uppercase tracking-wider px-4 py-2 border-2 border-black shadow-brutal transition-all active:translate-x-1 active:translate-y-1 active:shadow-none;
+}
+
+.brutal-badge {
+  @apply font-mono text-xs font-bold uppercase px-2 py-0.5 border border-black shadow-[2px_2px_0px_#000];
+}
