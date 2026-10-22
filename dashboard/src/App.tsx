@@ -600,7 +600,29 @@ export default function App() {
 
       {/* Footer */}
       <footer className="border-t-2 border-zinc-800 bg-[#0C0E14] px-6 py-4 text-center font-mono text-xs text-zinc-500">
-        CRYSTAL SCRIMS MANAGER • 100% FREE-TIER COMPATIBLE • OPEN SOURCE ESPORTS ENGINE
+        <div>
+          CRYSTAL SCRIMS MANAGER • DEVELOPED BY{' '}
+          <a 
+            href="https://sahooshuvranshu.is-a.dev" 
+            target="_blank" 
+            rel="noreferrer" 
+            className="text-[#00F0FF] hover:underline font-bold"
+          >
+            SHUVRANSU SEKHAR SAHOO
+          </a>{' '}
+          FOR{' '}
+          <a 
+            href="https://github.com/Crystal-Studio-Labs/" 
+            target="_blank" 
+            rel="noreferrer" 
+            className="text-[#39FF14] hover:underline font-bold"
+          >
+            CRYSTAL STUDIO LABS
+          </a>
+        </div>
+        <div className="text-[10px] text-zinc-600 mt-1">
+          100% FREE-TIER COMPATIBLE • OPEN SOURCE ESPORTS ENGINE
+        </div>
       </footer>
     </div>
   );

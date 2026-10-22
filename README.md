@@ -3,8 +3,11 @@
 # 💎 Crystal Scrims Manager
 
 **Enterprise-grade, open-source Discord bot for esports scrims, brackets, and tournament management.**  
+*Developed by [Shuvransu Sekhar Sahoo](https://sahooshuvranshu.is-a.dev) for [Crystal Studio Labs](https://github.com/Crystal-Studio-Labs/).*  
 *Engineered to run 100% on free-tier cloud infrastructure with multi-database support (Turso, SQLite, Supabase, Neon).*
 
+[![Author](https://img.shields.io/badge/Author-Shuvransu%20Sekhar%20Sahoo-00F0FF?logo=github)](https://sahooshuvranshu.is-a.dev)
+[![Organization](https://img.shields.io/badge/Org-Crystal%20Studio%20Labs-39FF14?logo=github)](https://github.com/Crystal-Studio-Labs/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Discord.js](https://img.shields.io/badge/discord.js-v14.16-5865F2?logo=discord&logoColor=white)](https://discord.js.org/)
 [![Drizzle ORM](https://img.shields.io/badge/Drizzle%20ORM-0.35-C5F74F?logo=drizzle)](https://orm.drizzle.team/)
@@ -206,6 +209,14 @@ docker compose up -d
 | `/points` | `add` | Record match placement and finish kills for a team | Admin / Organizer |
 | `/points` | `table` | Display the sorted live Points Table standings | Everyone |
 | `/points` | `reset` | Clear all scores for a lobby | Admin / Organizer |
+
+---
+
+## 👨‍💻 Developer & Organization
+
+* **Lead Architect & Developer**: **[Shuvransu Sekhar Sahoo](https://sahooshuvranshu.is-a.dev)**
+* **Organization**: **[Crystal Studio Labs](https://github.com/Crystal-Studio-Labs/)**
+* **Repository**: [https://github.com/Crystal-Studio-Labs/Crystal-Scrims-Manager](https://github.com/Crystal-Studio-Labs/Crystal-Scrims-Manager)
 
 ---
 

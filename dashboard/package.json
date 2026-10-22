@@ -2,6 +2,7 @@
   "name": "crystal-scrims-dashboard",
   "private": true,
   "version": "1.0.0",
+  "author": "Shuvransu Sekhar Sahoo (https://sahooshuvranshu.is-a.dev)",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -28,7 +28,15 @@
     "drizzle-orm",
     "open-source"
   ],
-  "author": "Crystal Development Team & Community",
+  "author": "Shuvransu Sekhar Sahoo (https://sahooshuvranshu.is-a.dev)",
+  "contributors": [
+    "Crystal Studio Labs (https://github.com/Crystal-Studio-Labs/)"
+  ],
+  "homepage": "https://github.com/Crystal-Studio-Labs/Crystal-Scrims-Manager#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Crystal-Studio-Labs/Crystal-Scrims-Manager.git"
+  },
   "license": "MIT",
   "dependencies": {
     "@libsql/client": "^0.14.0",
