@@ -19,6 +19,14 @@ const envSchema = z.object({
   PORT: z.string().default('8080').transform((val) => parseInt(val, 10)),
   DEFAULT_PREFIX: z.string().default('!'),
   DEFAULT_MAX_SLOTS: z.string().default('25').transform((val) => parseInt(val, 10)),
+
+  // Permissions & Roles
+  DEFAULT_ORGANIZER_ROLE: z.string().default('Scrim Organizer'),
+
+  // Default Outcome Announcement Visuals (GIFs / Images)
+  DEFAULT_WIN_GIF: z.string().default('https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif'),
+  DEFAULT_LOSS_GIF: z.string().default('https://media.giphy.com/media/3o7TKr3nzbh5WgCFxe/giphy.gif'),
+  DEFAULT_DRAW_GIF: z.string().default('https://media.giphy.com/media/l4KhQo2MESJkc6QbS/giphy.gif'),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -30,7 +38,6 @@ function validateEnv(): Env {
     result.error.errors.forEach((err) => {
       console.error(`   - ${err.path.join('.')}: ${err.message}`);
     });
-    // In dev or CI, don't crash immediately if token is not yet provided so scripts like tsc can run
     if (!process.env.DISCORD_TOKEN) {
       console.warn('⚠️ Warning: Running without valid DISCORD_TOKEN. Set this in .env before starting the bot.');
     }

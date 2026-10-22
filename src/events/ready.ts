@@ -2,6 +2,7 @@ import { ActivityType } from 'discord.js';
 import type { Event } from '../types/index.js';
 import { logger } from '../utils/logger.js';
 import { startHealthServer } from '../server/health.js';
+import { SchedulerService } from '../services/schedulerService.js';
 import { env } from '../config/env.js';
 
 export const readyEvent: Event = {
@@ -15,14 +16,17 @@ export const readyEvent: Event = {
     client.user?.setPresence({
       activities: [
         {
-          name: 'Scrims & Tournaments | /scrim',
+          name: 'Scrims & Tournaments | /help',
           type: ActivityType.Watching,
         },
       ],
       status: 'online',
     });
 
-    // Start HTTP Healthcheck keep-alive server for Render / Koyeb / Fly.io
+    // 1. Start HTTP Healthcheck keep-alive server for Render / Koyeb / Fly.io
     startHealthServer(client, env.PORT);
+
+    // 2. Start Automated Daily Recurring Scrims Scheduler
+    SchedulerService.start(client);
   },
 };
