@@ -6,6 +6,7 @@ import { db, guilds, scrimLobbies, slotRegistrations, scrimMatchResults, teams }
 import { eq, desc, and } from 'drizzle-orm';
 import { ScrimService } from '../services/scrimService.js';
 import { PointsService } from '../services/pointsService.js';
+import { LiveLeaderboardService } from '../services/liveLeaderboardService.js';
 import { logger } from '../utils/logger.js';
 import { env } from '../config/env.js';
 import type { ExtendedClient } from '../client/ExtendedClient.js';
@@ -267,6 +268,9 @@ export async function handleApiAndStatic(
             sendJson(res, 400, { error: 'lobbyId, teamName, placement, and kills are required' });
             return true;
           }
+
+          // Trigger live Discord embed update
+          LiveLeaderboardService.updateLiveLeaderboard(client, String(body.lobbyId)).catch(() => {});
 
           const result = await PointsService.addResult({
             lobbyId: String(body.lobbyId),

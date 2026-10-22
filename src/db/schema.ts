@@ -18,6 +18,11 @@ export const guilds = sqliteTable('guilds', {
   
   // Roles & Permissions
   organizerRoleId: text('organizer_role_id'),
+  captainRoleId: text('captain_role_id'),
+  playerRoleId: text('player_role_id'),
+
+  // Game Whitelist / Allowed Disciplines (e.g. 'ALL' or 'BGMI,VALORANT')
+  allowedGames: text('allowed_games').default('ALL').notNull(),
 
   // Custom Pre-defined Outcome Announcement Templates
   winTemplate: text('win_template'),
@@ -65,6 +70,10 @@ export const scrimLobbies = sqliteTable('scrim_lobbies', {
   registrationChannelId: text('registration_channel_id'),
   slotlistMessageId: text('slotlist_message_id'),
   
+  // Real-time Event Leaderboard Dedicated Channel
+  liveLeaderboardChannelId: text('live_leaderboard_channel_id'),
+  liveLeaderboardMessageId: text('live_leaderboard_message_id'),
+
   // Credentials (IDP)
   roomId: text('room_id'),
   roomPassword: text('room_password'),

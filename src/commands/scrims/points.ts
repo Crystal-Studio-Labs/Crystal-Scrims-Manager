@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../../types/index.js';
 import { PointsService } from '../../services/pointsService.js';
+import { LiveLeaderboardService } from '../../services/liveLeaderboardService.js';
 import { isOrganizerOrAdmin } from '../../utils/permissions.js';
 import { createSuccessEmbed, createErrorEmbed, createBaseEmbed, COLORS } from '../../utils/embeds.js';
 
@@ -51,7 +52,7 @@ export const pointsCommand: Command = {
         )
     ),
 
-  async execute(interaction) {
+  async execute(interaction, client) {
     const subcommand = interaction.options.getSubcommand();
 
     if (subcommand === 'add' || subcommand === 'reset') {
@@ -81,6 +82,9 @@ export const pointsCommand: Command = {
           matchRound: round,
         });
 
+        // Trigger real-time live channel leaderboard update
+        LiveLeaderboardService.updateLiveLeaderboard(client, lobbyId).catch(() => {});
+
         const embed = createSuccessEmbed(
           'Points Recorded',
           `**Team**: ${res.teamName}\n` +
@@ -88,7 +92,8 @@ export const pointsCommand: Command = {
           `**Placement**: \`#${res.placement}\` (${res.placementPoints} pts)\n` +
           `**Kills**: \`${res.kills}\` pts\n` +
           `**Total Round Points**: \`${res.totalPoints}\` pts\n\n` +
-          `Use \`/points table lobby_id:${lobbyId}\` to see the updated standings!`
+          `📊 *Live Event Leaderboard channel updated in real-time!*\n` +
+          `Use \`/points table lobby_id:${lobbyId}\` to see the standings here.`
         );
 
         await interaction.reply({ embeds: [embed] });
@@ -144,6 +149,9 @@ export const pointsCommand: Command = {
       if (subcommand === 'reset') {
         const lobbyId = interaction.options.getString('lobby_id', true).trim();
         await PointsService.resetResults(lobbyId);
+
+        // Update live leaderboard
+        LiveLeaderboardService.updateLiveLeaderboard(client, lobbyId).catch(() => {});
 
         await interaction.reply({
           embeds: [createSuccessEmbed('Points Reset', `All match scores for lobby \`${lobbyId}\` have been cleared.`)],

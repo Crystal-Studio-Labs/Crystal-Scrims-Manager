@@ -1,11 +1,14 @@
 import type { Interaction } from 'discord.js';
 import type { Event } from '../types/index.js';
 import { logger } from '../utils/logger.js';
-import { createErrorEmbed, createSuccessEmbed } from '../utils/embeds.js';
+import { createErrorEmbed, createSuccessEmbed, createWarningEmbed } from '../utils/embeds.js';
 import { isOrganizerOrAdmin } from '../utils/permissions.js';
 import { db, guilds } from '../db/index.js';
 import { eq } from 'drizzle-orm';
 import type { ExtendedClient } from '../client/ExtendedClient.js';
+
+// In-memory rate limiting map to prevent rapid spamming, double clicks, and misclicks
+const buttonClickCooldowns = new Map<string, number>();
 
 export const interactionCreateEvent: Event = {
   name: 'interactionCreate',
@@ -23,8 +26,24 @@ export const interactionCreateEvent: Event = {
         return;
       }
 
-      // 2. Handle Buttons
+      // 2. Handle Buttons (with anti-misclick / debounce guard)
       if (interaction.isButton()) {
+        const userId = interaction.user.id;
+        const now = Date.now();
+        const lastClick = buttonClickCooldowns.get(userId) || 0;
+
+        // Debounce: reject clicks under 1.2s from the same user to prevent duplicate registrations or accidental clicks
+        if (now - lastClick < 1200) {
+          if (interaction.isRepliable()) {
+            await interaction.reply({
+              embeds: [createWarningEmbed('Misclick Guard', 'Please pause a moment between clicks to prevent accidental duplicate actions.')],
+              ephemeral: true,
+            }).catch(() => {});
+          }
+          return;
+        }
+        buttonClickCooldowns.set(userId, now);
+
         const customId = interaction.customId;
         const prefix = customId.split(':')[0];
 

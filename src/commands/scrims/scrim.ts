@@ -4,12 +4,16 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  ComponentType,
 } from 'discord.js';
 import type { Command } from '../../types/index.js';
 import { ScrimService } from '../../services/scrimService.js';
+import { LiveLeaderboardService } from '../../services/liveLeaderboardService.js';
 import { isOrganizerOrAdmin } from '../../utils/permissions.js';
 import { createBaseEmbed, createSuccessEmbed, createErrorEmbed, COLORS } from '../../utils/embeds.js';
 import { GAME_PRESETS } from '../../utils/presets.js';
+import { db, guilds } from '../../db/index.js';
+import { eq } from 'drizzle-orm';
 
 export const scrimCommand: Command = {
   data: new SlashCommandBuilder()
@@ -54,7 +58,7 @@ export const scrimCommand: Command = {
     .addSubcommand((sub) =>
       sub
         .setName('open')
-        .setDescription('Open registration for a lobby with interactive buttons')
+        .setDescription('Open registration for a lobby with interactive buttons and live leaderboard channel')
         .addStringOption((opt) =>
           opt.setName('lobby_id').setDescription('The 8-character ID of the lobby').setRequired(true)
         )
@@ -141,7 +145,7 @@ export const scrimCommand: Command = {
         )
     ),
 
-  async execute(interaction) {
+  async execute(interaction, client) {
     const subcommand = interaction.options.getSubcommand();
 
     // /scrim slotlist is publicly accessible to all members; other subcommands require staff permissions
@@ -155,13 +159,32 @@ export const scrimCommand: Command = {
         return;
       }
     }
+
     const guildId = interaction.guildId!;
     const guildName = interaction.guild?.name || 'Unknown Guild';
 
     try {
       if (subcommand === 'create') {
-        const title = interaction.options.getString('title', true);
-        const game = interaction.options.getString('game') || 'BGMI';
+        const title = interaction.options.getString('title', true).trim();
+        const game = (interaction.options.getString('game') || 'BGMI').toUpperCase();
+
+        // 1. Verify Allowed Games Policy for this server
+        const guildConfig = await db.select().from(guilds).where(eq(guilds.guildId, guildId)).get();
+        if (guildConfig?.allowedGames && guildConfig.allowedGames !== 'ALL') {
+          const allowedList = guildConfig.allowedGames.split(',').map((s) => s.trim().toUpperCase());
+          if (!allowedList.includes(game)) {
+            await interaction.reply({
+              embeds: [createErrorEmbed(
+                'Game Discipline Not Allowed',
+                `This server has restricted scrims to: **${guildConfig.allowedGames}**.\n\n` +
+                `To enable **${game}**, a Server Administrator must update the policy with \`/setup games\`.`
+              )],
+              ephemeral: true,
+            });
+            return;
+          }
+        }
+
         const preset = GAME_PRESETS[game] || GAME_PRESETS.BGMI;
         const slots = interaction.options.getInteger('slots') || preset.defaultSlots;
         const tier = interaction.options.getString('tier') || 'T3';
@@ -175,13 +198,17 @@ export const scrimCommand: Command = {
           totalSlots: slots,
         });
 
+        // Automatically provision dedicated live leaderboard channel in scrims category
+        const liveLeaderboard = await LiveLeaderboardService.createOrAttachLiveChannel(client, lobbyId, guildId);
+
         const embed = createSuccessEmbed(
           'Scrim Lobby Created',
           `**Title**: ${title}\n` +
           `**Lobby ID**: \`${lobbyId}\`\n` +
           `**Game Preset**: \`${preset.name}\`\n` +
           `**Tier**: \`${tier}\`\n` +
-          `**Total Slots**: \`${slots}\`\n\n` +
+          `**Total Slots**: \`${slots}\`\n` +
+          (liveLeaderboard ? `📊 **Live Leaderboard**: <#${liveLeaderboard.channelId}>\n\n` : '\n') +
           `👉 Open registrations: \`/scrim open lobby_id:${lobbyId}\`\n` +
           `🎛️ Launch Admin Panel: \`/scrim panel lobby_id:${lobbyId}\``
         );
@@ -191,8 +218,11 @@ export const scrimCommand: Command = {
       }
 
       if (subcommand === 'open') {
-        const lobbyId = interaction.options.getString('lobby_id', true);
+        const lobbyId = interaction.options.getString('lobby_id', true).trim();
         const lobby = await ScrimService.openRegistration(lobbyId, interaction.channelId);
+
+        // Ensure live leaderboard channel exists and is attached
+        const liveLeaderboard = await LiveLeaderboardService.createOrAttachLiveChannel(client, lobbyId, guildId);
 
         const embed = createBaseEmbed(`🏆 ${lobby.title} • REGISTRATIONS OPEN`)
           .setColor(COLORS.CRYSTAL)
@@ -201,7 +231,8 @@ export const scrimCommand: Command = {
             `🎮 **Game**: \`${lobby.gameType}\`\n` +
             `🎖️ **Tier**: \`${lobby.tier}\`\n` +
             `🔢 **Slots**: \`${lobby.totalSlots}\`\n` +
-            `🔑 **Lobby ID**: \`${lobby.lobbyId}\`\n\n` +
+            `🔑 **Lobby ID**: \`${lobby.lobbyId}\`\n` +
+            (liveLeaderboard ? `📊 **Live Standings Channel**: <#${liveLeaderboard.channelId}>\n\n` : '\n') +
             `Click **Register Team** below to register your squad via modal popup.`
           );
 
@@ -233,7 +264,7 @@ export const scrimCommand: Command = {
       }
 
       if (subcommand === 'panel') {
-        const lobbyId = interaction.options.getString('lobby_id', true);
+        const lobbyId = interaction.options.getString('lobby_id', true).trim();
         const { lobby, confirmed, waitlist } = await ScrimService.getSlotlist(lobbyId);
 
         const embed = createBaseEmbed(`🎛️ Admin Control Panel: ${lobby.title}`)
@@ -244,7 +275,8 @@ export const scrimCommand: Command = {
             `**Confirmed Slots**: \`${confirmed.length}/${lobby.totalSlots}\`\n` +
             `**Waitlist Count**: \`${waitlist.length}\`\n` +
             `**Room Credentials**: ${lobby.roomId ? `ID \`${lobby.roomId}\`` : '*Not set yet*'}\n\n` +
-            `Use the quick control buttons below to manage this scrim lobby:`
+            `Use the quick control buttons below to manage this scrim lobby:\n` +
+            `⏱️ *Panel buttons will auto-expire in 3 minutes to prevent misclicks.*`
           );
 
         const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -270,12 +302,25 @@ export const scrimCommand: Command = {
             .setEmoji('❌')
         );
 
-        await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
+        const response = await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
+
+        // Auto-disable buttons after 3 minutes to prevent stale misclicks
+        const collector = response.createMessageComponentCollector({
+          time: 180000,
+        });
+
+        collector.on('end', async () => {
+          row1.components.forEach((btn) => btn.setDisabled(true));
+          await interaction.editReply({
+            components: [row1],
+          }).catch(() => {});
+        });
+
         return;
       }
 
       if (subcommand === 'close') {
-        const lobbyId = interaction.options.getString('lobby_id', true);
+        const lobbyId = interaction.options.getString('lobby_id', true).trim();
         await ScrimService.closeRegistration(lobbyId);
 
         const embed = createSuccessEmbed(
@@ -288,7 +333,7 @@ export const scrimCommand: Command = {
       }
 
       if (subcommand === 'slotlist') {
-        const lobbyId = interaction.options.getString('lobby_id', true);
+        const lobbyId = interaction.options.getString('lobby_id', true).trim();
         const { lobby, confirmed, waitlist } = await ScrimService.getSlotlist(lobbyId);
 
         let confirmedText = '';
@@ -321,9 +366,9 @@ export const scrimCommand: Command = {
       }
 
       if (subcommand === 'reserve') {
-        const lobbyId = interaction.options.getString('lobby_id', true);
+        const lobbyId = interaction.options.getString('lobby_id', true).trim();
         const slotNumber = interaction.options.getInteger('slot_number', true);
-        const teamName = interaction.options.getString('team_name', true);
+        const teamName = interaction.options.getString('team_name', true).trim();
         const captain = interaction.options.getUser('captain') || interaction.user;
 
         const res = await ScrimService.reserveSlot({
@@ -344,8 +389,8 @@ export const scrimCommand: Command = {
       }
 
       if (subcommand === 'kick') {
-        const lobbyId = interaction.options.getString('lobby_id', true);
-        const target = interaction.options.getString('target', true);
+        const lobbyId = interaction.options.getString('lobby_id', true).trim();
+        const target = interaction.options.getString('target', true).trim();
 
         const res = await ScrimService.kickTeam(lobbyId, target);
 
@@ -359,9 +404,9 @@ export const scrimCommand: Command = {
       }
 
       if (subcommand === 'set-idp') {
-        const lobbyId = interaction.options.getString('lobby_id', true);
-        const roomId = interaction.options.getString('room_id', true);
-        const password = interaction.options.getString('password', true);
+        const lobbyId = interaction.options.getString('lobby_id', true).trim();
+        const roomId = interaction.options.getString('room_id', true).trim();
+        const password = interaction.options.getString('password', true).trim();
 
         await ScrimService.setRoomCredentials(lobbyId, roomId, password);
 
@@ -378,7 +423,7 @@ export const scrimCommand: Command = {
       }
 
       if (subcommand === 'cancel') {
-        const lobbyId = interaction.options.getString('lobby_id', true);
+        const lobbyId = interaction.options.getString('lobby_id', true).trim();
         await ScrimService.cancelLobby(lobbyId);
 
         await interaction.reply({
