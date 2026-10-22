@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: crystal-scrims-bot
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DB_DRIVER=${DB_DRIVER:-sqlite}
+      - DB_SQLITE_PATH=/app/data/local.db
+      - TURSO_DATABASE_URL=${TURSO_DATABASE_URL}
+      - TURSO_AUTH_TOKEN=${TURSO_AUTH_TOKEN}
+      - DATABASE_URL=${DATABASE_URL}
+      - PORT=8080
+    volumes:
+      - bot-data:/app/data
+
+volumes:
+  bot-data:

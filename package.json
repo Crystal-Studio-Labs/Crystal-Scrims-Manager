@@ -1,0 +1,50 @@
+{
+  "name": "crystal-scrims-manager",
+  "version": "1.0.0",
+  "description": "Enterprise-grade, open-source Discord bot for esports scrims, brackets, and tournament management. 100% free-tier ready with multi-database (Turso, SQLite, Supabase, Neon) support.",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "deploy:commands": "tsx src/deploy-commands.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "keywords": [
+    "crystal-scrims-manager",
+    "discord-bot",
+    "discordjs",
+    "esports",
+    "scrims",
+    "tournaments",
+    "bgmi",
+    "valorant",
+    "brackets",
+    "turso",
+    "supabase",
+    "drizzle-orm",
+    "open-source"
+  ],
+  "author": "Crystal Development Team & Community",
+  "license": "MIT",
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.35.3",
+    "postgres": "^3.4.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.1",
+    "drizzle-kit": "^0.26.2",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
