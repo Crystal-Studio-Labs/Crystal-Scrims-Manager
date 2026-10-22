@@ -9,6 +9,7 @@ import {
 } from 'discord.js';
 import type { Command, ButtonHandler, ModalHandler } from '../../types/index.js';
 import { ScrimService } from '../../services/scrimService.js';
+import { isOrganizerOrAdmin } from '../../utils/permissions.js';
 import { createSuccessEmbed, createWarningEmbed, createErrorEmbed, createBaseEmbed, COLORS } from '../../utils/embeds.js';
 
 /**
@@ -29,9 +30,11 @@ export const registerCommand: Command = {
     ),
 
   async execute(interaction) {
-    const lobbyId = interaction.options.getString('lobby_id', true);
-    const teamName = interaction.options.getString('team_name', true);
-    const teamTag = interaction.options.getString('team_tag') || undefined;
+    const lobbyId = interaction.options.getString('lobby_id', true).trim();
+    const rawTeamName = interaction.options.getString('team_name', true).trim();
+    const teamName = rawTeamName.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').slice(0, 64);
+    const rawTag = interaction.options.getString('team_tag');
+    const teamTag = rawTag ? rawTag.trim().replace(/[\u0000-\u001F\u007F-\u009F]/g, '').slice(0, 10) : undefined;
 
     await interaction.deferReply({ ephemeral: true });
 
@@ -75,7 +78,7 @@ export const registerButtonHandler: ButtonHandler = {
 
     const modal = new ModalBuilder()
       .setCustomId(`scrim_reg_submit:${lobbyId}`)
-      .setTitle(`Register for Lobby: ${lobbyId}`);
+      .setTitle(`Register: Lobby ${lobbyId}`);
 
     const teamNameInput = new TextInputBuilder()
       .setCustomId('team_name')
@@ -118,8 +121,10 @@ export const registerModalHandler: ModalHandler = {
 
   async execute(interaction: ModalSubmitInteraction) {
     const lobbyId = interaction.customId.split(':')[1];
-    const teamName = interaction.fields.getTextInputValue('team_name').trim();
-    const teamTag = interaction.fields.getTextInputValue('team_tag').trim() || undefined;
+    const rawTeamName = interaction.fields.getTextInputValue('team_name').trim();
+    const teamName = rawTeamName.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').slice(0, 64);
+    const rawTag = interaction.fields.getTextInputValue('team_tag')?.trim();
+    const teamTag = rawTag ? rawTag.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').slice(0, 10) : undefined;
 
     await interaction.deferReply({ ephemeral: true });
 
@@ -254,11 +259,20 @@ export const viewSlotlistButtonHandler: ButtonHandler = {
 };
 
 /**
- * 7. Admin Panel Buttons: Open, Close, Cancel
+ * 7. Admin Panel Buttons: Open, Close, Cancel (Secured with isOrganizerOrAdmin)
  */
 export const panelOpenButtonHandler: ButtonHandler = {
   customIdPrefix: 'panel_open',
   async execute(interaction: ButtonInteraction) {
+    const isPermitted = await isOrganizerOrAdmin(interaction);
+    if (!isPermitted) {
+      await interaction.reply({
+        embeds: [createErrorEmbed('Permission Denied', 'Only Scrim Organizers or Administrators can use this control.')],
+        ephemeral: true,
+      });
+      return;
+    }
+
     const lobbyId = interaction.customId.split(':')[1];
     await interaction.deferReply({ ephemeral: true });
     try {
@@ -273,6 +287,15 @@ export const panelOpenButtonHandler: ButtonHandler = {
 export const panelCloseButtonHandler: ButtonHandler = {
   customIdPrefix: 'panel_close',
   async execute(interaction: ButtonInteraction) {
+    const isPermitted = await isOrganizerOrAdmin(interaction);
+    if (!isPermitted) {
+      await interaction.reply({
+        embeds: [createErrorEmbed('Permission Denied', 'Only Scrim Organizers or Administrators can use this control.')],
+        ephemeral: true,
+      });
+      return;
+    }
+
     const lobbyId = interaction.customId.split(':')[1];
     await interaction.deferReply({ ephemeral: true });
     try {
@@ -287,6 +310,15 @@ export const panelCloseButtonHandler: ButtonHandler = {
 export const panelCancelButtonHandler: ButtonHandler = {
   customIdPrefix: 'panel_cancel',
   async execute(interaction: ButtonInteraction) {
+    const isPermitted = await isOrganizerOrAdmin(interaction);
+    if (!isPermitted) {
+      await interaction.reply({
+        embeds: [createErrorEmbed('Permission Denied', 'Only Scrim Organizers or Administrators can use this control.')],
+        ephemeral: true,
+      });
+      return;
+    }
+
     const lobbyId = interaction.customId.split(':')[1];
     await interaction.deferReply({ ephemeral: true });
     try {

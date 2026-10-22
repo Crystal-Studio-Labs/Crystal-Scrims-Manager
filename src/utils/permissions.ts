@@ -1,26 +1,54 @@
-import { PermissionFlagsBits, type ChatInputCommandInteraction, type GuildMember } from 'discord.js';
+import { PermissionFlagsBits, type GuildMember, type PermissionsBitField } from 'discord.js';
 import { db, guilds } from '../db/index.js';
 import { eq } from 'drizzle-orm';
 import { env } from '../config/env.js';
 
-export async function isOrganizerOrAdmin(interaction: ChatInputCommandInteraction): Promise<boolean> {
-  const member = interaction.member as GuildMember | null;
-  if (!member) return false;
+export interface InteractionWithPermissions {
+  member: GuildMember | any;
+  guildId: string | null;
+  memberPermissions?: Readonly<PermissionsBitField> | null;
+}
 
-  // 1. Check if user is Server Owner or Administrator
-  if (member.permissions.has(PermissionFlagsBits.Administrator) || member.permissions.has(PermissionFlagsBits.ManageGuild)) {
-    return true;
+export async function isOrganizerOrAdmin(interaction: InteractionWithPermissions): Promise<boolean> {
+  // If in direct messages or invalid guild context, deny administrative actions
+  if (!interaction.guildId || !interaction.member) {
+    return false;
   }
 
-  // 2. Check if user has the configured Organizer Role from the Database
-  const guildConfig = await db.select().from(guilds).where(eq(guilds.guildId, interaction.guildId!)).get();
-  
-  if (guildConfig?.organizerRoleId && member.roles.cache.has(guildConfig.organizerRoleId)) {
-    return true;
+  // 1. Check memberPermissions directly if available (works for API & cached members)
+  if (interaction.memberPermissions) {
+    if (
+      interaction.memberPermissions.has(PermissionFlagsBits.Administrator) ||
+      interaction.memberPermissions.has(PermissionFlagsBits.ManageGuild)
+    ) {
+      return true;
+    }
   }
 
-  // 3. Fallback: Check if user has role matching DEFAULT_ORGANIZER_ROLE name
-  if (member.roles.cache.some((role) => role.name.toLowerCase() === env.DEFAULT_ORGANIZER_ROLE.toLowerCase())) {
+  // 2. Check cached guild member permissions
+  const member = interaction.member as GuildMember;
+  if (member?.permissions?.has) {
+    if (
+      member.permissions.has(PermissionFlagsBits.Administrator) ||
+      member.permissions.has(PermissionFlagsBits.ManageGuild)
+    ) {
+      return true;
+    }
+  }
+
+  // 3. Check if user has the configured Organizer Role from the Database
+  try {
+    const guildConfig = await db.select().from(guilds).where(eq(guilds.guildId, interaction.guildId)).get();
+    
+    if (guildConfig?.organizerRoleId && member?.roles?.cache?.has(guildConfig.organizerRoleId)) {
+      return true;
+    }
+  } catch {
+    // Database query error fallback
+  }
+
+  // 4. Fallback: Check if user has role matching DEFAULT_ORGANIZER_ROLE name
+  if (member?.roles?.cache?.some((role: any) => role.name.toLowerCase() === env.DEFAULT_ORGANIZER_ROLE.toLowerCase())) {
     return true;
   }
 

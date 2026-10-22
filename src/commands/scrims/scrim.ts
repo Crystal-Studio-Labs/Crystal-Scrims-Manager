@@ -142,16 +142,19 @@ export const scrimCommand: Command = {
     ),
 
   async execute(interaction) {
-    const isPermitted = await isOrganizerOrAdmin(interaction);
-    if (!isPermitted) {
-      await interaction.reply({
-        embeds: [createErrorEmbed('Permission Denied', 'Only Scrim Organizers or Administrators can use management commands.')],
-        ephemeral: true,
-      });
-      return;
-    }
-
     const subcommand = interaction.options.getSubcommand();
+
+    // /scrim slotlist is publicly accessible to all members; other subcommands require staff permissions
+    if (subcommand !== 'slotlist') {
+      const isPermitted = await isOrganizerOrAdmin(interaction);
+      if (!isPermitted) {
+        await interaction.reply({
+          embeds: [createErrorEmbed('Permission Denied', 'Only Scrim Organizers or Administrators can use management commands.')],
+          ephemeral: true,
+        });
+        return;
+      }
+    }
     const guildId = interaction.guildId!;
     const guildName = interaction.guild?.name || 'Unknown Guild';
 

@@ -58,7 +58,7 @@ export const pointsCommand: Command = {
       const isPermitted = await isOrganizerOrAdmin(interaction);
       if (!isPermitted) {
         await interaction.reply({
-          embeds: [createErrorEmbed('Permission Denied', 'Only Scrim Organizers or Administrators can record points.')],
+          embeds: [createErrorEmbed('Permission Denied', 'Only Scrim Organizers or Administrators can record or reset points.')],
           ephemeral: true,
         });
         return;
@@ -67,8 +67,8 @@ export const pointsCommand: Command = {
 
     try {
       if (subcommand === 'add') {
-        const lobbyId = interaction.options.getString('lobby_id', true);
-        const teamName = interaction.options.getString('team_name', true);
+        const lobbyId = interaction.options.getString('lobby_id', true).trim();
+        const teamName = interaction.options.getString('team_name', true).trim();
         const placement = interaction.options.getInteger('placement', true);
         const kills = interaction.options.getInteger('kills', true);
         const round = interaction.options.getInteger('round') || 1;
@@ -96,7 +96,7 @@ export const pointsCommand: Command = {
       }
 
       if (subcommand === 'table') {
-        const lobbyId = interaction.options.getString('lobby_id', true);
+        const lobbyId = interaction.options.getString('lobby_id', true).trim();
         const round = interaction.options.getInteger('round') ?? undefined;
 
         const { lobby, results } = await PointsService.getLeaderboard(lobbyId, round);
@@ -113,7 +113,8 @@ export const pointsCommand: Command = {
         tableText += `${'Rank'.padEnd(5)} ${'Team'.padEnd(16)} ${'Plac'.padEnd(6)} ${'Kills'.padEnd(6)} ${'Total'.padEnd(6)}\n`;
         tableText += '-'.repeat(42) + '\n';
 
-        results.forEach((row: { teamName: string; placementPoints: number; kills: number; totalPoints: number }, index: number) => {
+        const displayResults = results.slice(0, 25);
+        displayResults.forEach((row: { teamName: string; placementPoints: number; kills: number; totalPoints: number }, index: number) => {
           const rank = `#${index + 1}`.padEnd(5);
           const name = (row.teamName.length > 14 ? row.teamName.slice(0, 13) + '…' : row.teamName).padEnd(16);
           const plac = String(row.placementPoints).padEnd(6);
@@ -121,6 +122,10 @@ export const pointsCommand: Command = {
           const total = String(row.totalPoints).padEnd(6);
           tableText += `${rank} ${name} ${plac} ${kills} ${total}\n`;
         });
+
+        if (results.length > 25) {
+          tableText += `... +${results.length - 25} more teams (view on web dashboard)\n`;
+        }
         tableText += '```';
 
         const embed = createBaseEmbed(`📊 Live Standings: ${lobby.title}`)
@@ -137,7 +142,7 @@ export const pointsCommand: Command = {
       }
 
       if (subcommand === 'reset') {
-        const lobbyId = interaction.options.getString('lobby_id', true);
+        const lobbyId = interaction.options.getString('lobby_id', true).trim();
         await PointsService.resetResults(lobbyId);
 
         await interaction.reply({
@@ -147,7 +152,7 @@ export const pointsCommand: Command = {
       }
     } catch (err: any) {
       await interaction.reply({
-        embeds: [createErrorEmbed('Points Action Failed', err.message)],
+        embeds: [createErrorEmbed('Points Action Failed', err.message || 'An error occurred while calculating points.')],
         ephemeral: true,
       });
     }

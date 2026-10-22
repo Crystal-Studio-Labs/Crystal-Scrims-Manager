@@ -69,11 +69,14 @@ export const advanceCommand: Command = {
           }
         }
 
+        const rawList = verifiedList.join('\n');
+        const safeList = rawList.length > 3900 ? rawList.slice(0, 3900) + '\n...[truncated]' : rawList;
+
         const embed = createBaseEmbed(`🛡️ Tag Verification Audit: ${lobby.title}`)
           .setColor(suspiciousCount === 0 ? COLORS.SUCCESS : COLORS.WARNING)
           .setDescription(
             `Audited **${confirmed.length}** confirmed squads in lobby \`${lobbyId}\`:\n\n` +
-            (verifiedList.length === 0 ? '*No confirmed teams registered yet.*' : verifiedList.join('\n'))
+            (verifiedList.length === 0 ? '*No confirmed teams registered yet.*' : safeList)
           )
           .setFooter({ text: suspiciousCount === 0 ? 'All Captains Verified' : `${suspiciousCount} Suspicious Lineup(s) Detected` });
 
@@ -91,13 +94,14 @@ export const advanceCommand: Command = {
           return;
         }
 
-        const mentions = unconfirmed.map((s) => `<@${s.captainId}> (Slot #${s.slotNumber} - ${s.teamName})`).join('\n');
+        const rawMentions = unconfirmed.map((s) => `<@${s.captainId}> (Slot #${s.slotNumber} - ${s.teamName})`).join('\n');
+        const safeMentions = rawMentions.length > 3900 ? rawMentions.slice(0, 3900) + '\n...[truncated]' : rawMentions;
 
         const embed = createBaseEmbed(`⏰ Mandatory Check-In Warning: ${lobby.title}`)
           .setColor(COLORS.WARNING)
           .setDescription(
             `The following team captains must check in immediately or risk losing their confirmed slot:\n\n` +
-            `${mentions}\n\n` +
+            `${safeMentions}\n\n` +
             `👉 Click the **[✅ Check-in]** button in the registration channel to secure your slot!`
           );
 

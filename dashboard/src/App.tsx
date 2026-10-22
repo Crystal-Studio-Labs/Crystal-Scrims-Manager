@@ -72,6 +72,7 @@ export default function App() {
   const [scorePlacement, setScorePlacement] = useState(1);
   const [scoreKills, setScoreKills] = useState(0);
   const [adminNotice, setAdminNotice] = useState<string | null>(null);
+  const [adminKey, setAdminKey] = useState<string>(() => localStorage.getItem('crystal_admin_key') || '');
 
   // Fetch telemetry and lobbies
   const fetchLobbies = async () => {
@@ -129,7 +130,10 @@ export default function App() {
     try {
       const res = await fetch(`/api/v1/admin/scrims/${selectedLobbyId}/action`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(adminKey ? { 'Authorization': 'Bearer ' + adminKey.trim() } : {}),
+        },
         body: JSON.stringify({ action, ...payload }),
       });
       const data = await res.json();
@@ -153,7 +157,10 @@ export default function App() {
     try {
       const res = await fetch('/api/v1/admin/points/add', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(adminKey ? { 'Authorization': 'Bearer ' + adminKey.trim() } : {}),
+        },
         body: JSON.stringify({
           lobbyId: selectedLobbyId,
           teamName: scoreTeam,
@@ -444,7 +451,45 @@ export default function App() {
         {/* TAB 3: ADMIN & ORGANIZER COMMAND CONSOLE              */}
         {/* ==================================================== */}
         {activeTab === 'admin' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            {/* Admin Security Access Gate */}
+            <div className="border-2 border-zinc-800 bg-[#11141D] p-5 shadow-[4px_4px_0px_#000]">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center space-x-2 text-sm font-bold text-[#00F0FF] tracking-wider uppercase font-mono">
+                    <Key className="w-4 h-4 text-[#00F0FF]" />
+                    <span>Admin Security Passkey</span>
+                  </div>
+                  <p className="text-xs font-mono text-zinc-400 mt-1">
+                    Provide the <code className="text-zinc-200">ADMIN_API_KEY</code> from your server's <code className="text-zinc-200">.env</code> to authenticate write actions and prevent unauthorized tamper.
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="password"
+                    value={adminKey}
+                    onChange={(e) => {
+                      setAdminKey(e.target.value);
+                      localStorage.setItem('crystal_admin_key', e.target.value);
+                    }}
+                    placeholder="Enter ADMIN_API_KEY..."
+                    className="bg-black border-2 border-zinc-700 px-3 py-2 text-xs font-mono text-white focus:border-[#00F0FF] outline-none min-w-[220px]"
+                  />
+                  <button
+                    onClick={() => {
+                      localStorage.setItem('crystal_admin_key', adminKey);
+                      setAdminNotice('Admin passkey saved locally.');
+                      setTimeout(() => setAdminNotice(null), 3000);
+                    }}
+                    className="border-2 border-black bg-[#00F0FF] text-black px-4 py-2 text-xs font-mono font-bold uppercase hover:bg-cyan-300 shadow-[2px_2px_0px_#000]"
+                  >
+                    Save Key
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* 1. Quick Lobby Controls */}
             <div className="brutal-card p-6">
               <h3 className="font-mono text-base font-bold uppercase text-white mb-4 flex items-center gap-2 border-b-2 border-zinc-800 pb-2">
@@ -595,6 +640,7 @@ export default function App() {
               </form>
             </div>
           </div>
+        </div>
         )}
       </main>
 

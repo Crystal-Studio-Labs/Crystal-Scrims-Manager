@@ -22,6 +22,7 @@ const envSchema = z.object({
 
   // Permissions & Roles
   DEFAULT_ORGANIZER_ROLE: z.string().default('Scrim Organizer'),
+  ADMIN_API_KEY: z.string().default('crystal-admin-secret-2026'),
 
   // Default Outcome Announcement Visuals (GIFs / Images)
   DEFAULT_WIN_GIF: z.string().default('https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif'),

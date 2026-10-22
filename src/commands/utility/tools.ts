@@ -7,7 +7,7 @@ import {
   type TextChannel
 } from 'discord.js';
 import type { Command } from '../../types/index.js';
-import { createBaseEmbed, createSuccessEmbed, COLORS } from '../../utils/embeds.js';
+import { createBaseEmbed, createSuccessEmbed, createErrorEmbed, COLORS } from '../../utils/embeds.js';
 import { isOrganizerOrAdmin } from '../../utils/permissions.js';
 
 export const toolsCommand: Command = {
@@ -63,91 +63,107 @@ export const toolsCommand: Command = {
   async execute(interaction, client) {
     const subcommand = interaction.options.getSubcommand();
 
-    if (subcommand === 'coinflip') {
-      const outcome = Math.random() < 0.5 ? 'HEADS' : 'TAILS';
-      const icon = outcome === 'HEADS' ? '🪙' : '🪙';
-      const embed = createBaseEmbed('🪙 Coinflip Result')
-        .setColor(COLORS.CRYSTAL)
-        .setDescription(`The coin flipped and landed on: **${outcome}**!`)
-        .setFooter({ text: 'Decided by Crystal Random Engine' });
-      await interaction.reply({ embeds: [embed] });
-      return;
-    }
+    try {
+      if (subcommand === 'coinflip') {
+        const outcome = Math.random() < 0.5 ? 'HEADS' : 'TAILS';
+        const embed = createBaseEmbed('🪙 Coinflip Result')
+          .setColor(COLORS.CRYSTAL)
+          .setDescription(`The coin flipped and landed on: **${outcome}**!`)
+          .setFooter({ text: 'Decided by Crystal Random Engine' });
+        await interaction.reply({ embeds: [embed] });
+        return;
+      }
 
-    if (subcommand === 'dice') {
-      const sides = interaction.options.getInteger('sides') || 6;
-      const roll = Math.floor(Math.random() * sides) + 1;
-      const embed = createBaseEmbed('🎲 Dice Roll Result')
-        .setColor(COLORS.SUCCESS)
-        .setDescription(`Rolled a D${sides}: **${roll}**!`)
-        .setFooter({ text: 'Decided by Crystal Random Engine' });
-      await interaction.reply({ embeds: [embed] });
-      return;
-    }
+      if (subcommand === 'dice') {
+        const sides = interaction.options.getInteger('sides') || 6;
+        const roll = Math.floor(Math.random() * sides) + 1;
+        const embed = createBaseEmbed('🎲 Dice Roll Result')
+          .setColor(COLORS.SUCCESS)
+          .setDescription(`Rolled a D${sides}: **${roll}**!`)
+          .setFooter({ text: 'Decided by Crystal Random Engine' });
+        await interaction.reply({ embeds: [embed] });
+        return;
+      }
 
-    if (subcommand === 'poll') {
-      const question = interaction.options.getString('question', true);
-      const opt1 = interaction.options.getString('option_1', true);
-      const opt2 = interaction.options.getString('option_2', true);
+      if (subcommand === 'poll') {
+        const question = interaction.options.getString('question', true);
+        const opt1 = interaction.options.getString('option_1', true);
+        const opt2 = interaction.options.getString('option_2', true);
 
-      const embed = createBaseEmbed(`📊 Tournament Poll: ${question}`)
-        .setColor(COLORS.CRYSTAL)
-        .setDescription(
-          `**${question}**\n\n` +
-          `1️⃣ **${opt1}**\n` +
-          `2️⃣ **${opt2}**\n\n` +
-          `*Vote by clicking the reaction buttons below!*`
-        )
-        .setFooter({ text: `Created by ${interaction.user.tag}` });
+        const embed = createBaseEmbed(`📊 Tournament Poll: ${question}`)
+          .setColor(COLORS.CRYSTAL)
+          .setDescription(
+            `**${question}**\n\n` +
+            `1️⃣ **${opt1}**\n` +
+            `2️⃣ **${opt2}**\n\n` +
+            `*Vote by clicking the reaction buttons below!*`
+          )
+          .setFooter({ text: `Created by ${interaction.user.tag}` });
 
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId(`poll_vote_1`)
-          .setLabel(opt1)
-          .setStyle(ButtonStyle.Primary),
-        new ButtonBuilder()
-          .setCustomId(`poll_vote_2`)
-          .setLabel(opt2)
-          .setStyle(ButtonStyle.Secondary)
-      );
-
-      await interaction.reply({ embeds: [embed], components: [row] });
-      return;
-    }
-
-    if (subcommand === 'serverinfo') {
-      const guild = interaction.guild!;
-      const embed = createBaseEmbed(`🛡️ Server Esports Telemetry: ${guild.name}`)
-        .setColor(COLORS.CRYSTAL)
-        .addFields(
-          { name: '👥 Total Members', value: `\`${guild.memberCount}\``, inline: true },
-          { name: '👑 Server Owner', value: `<@${guild.ownerId}>`, inline: true },
-          { name: '🎮 Platform Engine', value: '`Crystal Scrims Manager v2.0`', inline: true },
-          { name: '🌐 Web Console', value: '`http://localhost:8080/`', inline: true },
-          { name: '💾 Database Backend', value: '`Turso LibSQL / Local SQLite`', inline: true }
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setCustomId(`poll_vote_1`)
+            .setLabel(opt1)
+            .setStyle(ButtonStyle.Primary),
+          new ButtonBuilder()
+            .setCustomId(`poll_vote_2`)
+            .setLabel(opt2)
+            .setStyle(ButtonStyle.Secondary)
         );
-      await interaction.reply({ embeds: [embed] });
-      return;
-    }
 
-    if (subcommand === 'clear') {
-      const isPermitted = await isOrganizerOrAdmin(interaction);
-      if (!isPermitted) {
-        await interaction.reply({ content: 'Only Admins or Organizers can clear chat messages.', ephemeral: true });
+        await interaction.reply({ embeds: [embed], components: [row] });
         return;
       }
 
-      const count = interaction.options.getInteger('count', true);
-      const channel = interaction.channel as TextChannel | null;
-      if (!channel || !channel.bulkDelete) {
-        await interaction.reply({ content: 'Cannot clear messages in this channel type.', ephemeral: true });
+      if (subcommand === 'serverinfo') {
+        const guild = interaction.guild!;
+        const embed = createBaseEmbed(`🛡️ Server Esports Telemetry: ${guild.name}`)
+          .setColor(COLORS.CRYSTAL)
+          .addFields(
+            { name: '👥 Total Members', value: `\`${guild.memberCount}\``, inline: true },
+            { name: '👑 Server Owner', value: `<@${guild.ownerId}>`, inline: true },
+            { name: '🎮 Platform Engine', value: '`Crystal Scrims Manager v2.0`', inline: true },
+            { name: '🌐 Web Console', value: '`http://localhost:8080/`', inline: true },
+            { name: '💾 Database Backend', value: '`Turso LibSQL / Local SQLite`', inline: true }
+          );
+        await interaction.reply({ embeds: [embed] });
         return;
       }
 
-      await interaction.deferReply({ ephemeral: true });
-      const deleted = await channel.bulkDelete(count, true);
-      await interaction.editReply({ content: `🧹 Successfully purged ${deleted.size} message(s).` });
-      return;
+      if (subcommand === 'clear') {
+        const isPermitted = await isOrganizerOrAdmin(interaction);
+        if (!isPermitted) {
+          await interaction.reply({
+            embeds: [createErrorEmbed('Permission Denied', 'Only Admins or Organizers can clear chat messages.')],
+            ephemeral: true,
+          });
+          return;
+        }
+
+        const count = interaction.options.getInteger('count', true);
+        const channel = interaction.channel as TextChannel | null;
+        if (!channel || !channel.bulkDelete) {
+          await interaction.reply({
+            embeds: [createErrorEmbed('Unsupported Channel', 'Cannot clear messages in this channel type.')],
+            ephemeral: true,
+          });
+          return;
+        }
+
+        await interaction.deferReply({ ephemeral: true });
+        const deleted = await channel.bulkDelete(count, true);
+        await interaction.editReply({
+          embeds: [createSuccessEmbed('Purge Complete', `🧹 Successfully purged **${deleted.size}** message(s). (Messages older than 14 days are excluded by Discord).`)],
+        });
+        return;
+      }
+    } catch (err: any) {
+      const errorEmbed = createErrorEmbed('Action Failed', err.message || 'An error occurred during tool execution.');
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] }).catch(() => {});
+      } else {
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true }).catch(() => {});
+      }
     }
   },
 };
