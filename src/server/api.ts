@@ -220,6 +220,16 @@ export async function handleApiAndStatic(
             return true;
           }
 
+          if (action === 'status') {
+            if (!body.status) {
+              sendJson(res, 400, { error: 'Status is required' });
+              return true;
+            }
+            const lobby = await ScrimService.setStatus(lobbyId, String(body.status).toUpperCase());
+            sendJson(res, 200, { success: true, message: "Status updated to " + body.status, lobbyId: lobby.lobbyId });
+            return true;
+          }
+
           if (action === 'cancel') {
             const lobby = await ScrimService.cancelLobby(lobbyId);
             sendJson(res, 200, { success: true, message: 'Lobby cancelled', lobbyId: lobby.lobbyId });

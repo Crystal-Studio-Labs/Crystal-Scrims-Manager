@@ -92,6 +92,20 @@ export class ScrimService {
   }
 
   /**
+   * Update Status for a Lobby (e.g. OPEN, LIVE, COMPLETED, SCHEDULED, CANCELLED)
+   */
+  public static async setStatus(lobbyId: string, status: string) {
+    const lobby = await db.select().from(scrimLobbies).where(eq(scrimLobbies.lobbyId, lobbyId)).get();
+    if (!lobby) throw new Error("Lobby `" + lobbyId + "` does not exist.");
+
+    await db.update(scrimLobbies)
+      .set({ status })
+      .where(eq(scrimLobbies.lobbyId, lobbyId));
+
+    return lobby;
+  }
+
+  /**
    * Pre-reserve a Slot for an Invited / VIP Team
    */
   public static async reserveSlot(params: {
