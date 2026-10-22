@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 90" fill="none">
+  <!-- Hard Brutalist Shadow for Icon Box -->
+  <rect x="14" y="14" width="64" height="64" fill="#000000" />
+  <!-- Main Icon Box (Volt Cyan) -->
+  <rect x="10" y="10" width="64" height="64" fill="#00F0FF" stroke="#000000" stroke-width="4" />
+  <!-- Diamond Crest inside Icon Box -->
+  <polygon points="42,18 64,42 42,66 20,42" fill="#050507" stroke="#000000" stroke-width="3" />
+  <polygon points="42,26 56,42 42,58 28,42" fill="#39FF14" />
+
+  <!-- Typography: CRYSTAL.SCRIMS -->
+  <text x="92" y="44" font-family="'JetBrains Mono', monospace" font-size="28" font-weight="900" fill="#00F0FF" letter-spacing="1">CRYSTAL<tspan fill="#FF0055">.</tspan><tspan fill="#FFFFFF">SCRIMS</tspan></text>
+  
+  <!-- Sub-label: INDUSTRIAL ESPORTS ENGINE -->
+  <rect x="92" y="54" width="180" height="20" fill="#FFDF00" stroke="#000000" stroke-width="2" />
+  <text x="98" y="68" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#000000" letter-spacing="1.5">ESPORTS OPS PORTAL</text>
+  
+  <!-- Version Tag -->
+  <rect x="282" y="54" width="46" height="20" fill="#FF0055" stroke="#000000" stroke-width="2" />
+  <text x="290" y="68" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="800" fill="#FFFFFF">V2.0</text>
+</svg>

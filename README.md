@@ -1,6 +1,12 @@
 <div align="center">
 
-# 💎 Crystal Scrims Manager
+<p align="center">
+  <img src="assets/og-image.svg" alt="Crystal Scrims Manager Hero Banner" width="100%" style="border-radius: 4px; border: 3px solid #000;" />
+</p>
+
+<p align="center">
+  <img src="assets/crystal-logo.svg" alt="Crystal Scrims Manager Logo" width="360" />
+</p>
 
 **Enterprise-Grade, Open-Source Discord Bot & Neo-Brutalist Web Dashboard for Esports Scrims, Brackets, and Tournament Management.**  
 *Engineered to run 100% on free-tier cloud infrastructure with multi-database (Turso, SQLite, Supabase, Neon) support.*
@@ -75,15 +81,19 @@ Developed with ❤️ by **[Shuvransu Sekhar Sahoo](https://sahooshuvranshu.is-a
 
 Crystal Scrims Manager ships with a full-featured, responsive web dashboard built with **React**, **Vite**, **Tailwind CSS**, and **Lucide Icons**, styled in an **Industrial Neo-Brutalist Esports Theme**.
 
+<p align="center">
+  <img src="assets/og-image.svg" alt="Crystal Scrims Web Portal Visual Preview" width="100%" style="border: 3px solid #000; box-shadow: 4px 4px 0px #000;" />
+</p>
+
 ### Web Portal Modules & Capabilities:
-1. **Multi-Server Customization & Switcher**:
+1. **<img src="assets/default-server.svg" width="16" height="16" align="absmiddle" /> Multi-Server Customization & Switcher**:
    - Community-aware architecture: select any connected Discord server from the header dropdown to view server-specific scrims, custom prefix, and allowed game modes.
    - Deep-linking support via `?guild=GUILD_ID` for sharing direct community tournament links.
-2. **Ultra-Dark Obsidian & Brutalist Light Theme Support**:
+2. **<img src="assets/favicon.svg" width="16" height="16" align="absmiddle" /> Ultra-Dark Obsidian & Brutalist Light Theme Support**:
    - 1-click theme switcher in header (Sun/Moon) with preferences saved in `localStorage`.
    - Dark theme: deep pitch obsidian (`#050507`), carbon surfaces (`#0D0F16`), sharp contrast borders, glowing cyber neon accents (`#00F0FF`, `#39FF14`, `#FFDF00`, `#FF0055`).
    - Light theme: stark industrial brutalist canvas (`#F4F4F0`), pure white cards (`#FFFFFF`), solid 2px black borders, heavy black shadows.
-3. **Landing & Events Hub (`#landing` & `#events`)**:
+3. **<img src="assets/default-game.svg" width="16" height="16" align="absmiddle" /> Landing & Events Hub (`#landing` & `#events`)**:
    - Real-time platform counters (Total Events, Active Matches, Connected Servers, Sub-second Concurrency).
    - Filter events by status: **ALL**, **LIVE / ONGOING**, **UPCOMING**, and **COMPLETED**.
    - Filter by esports discipline: **BGMI**, **Free Fire**, **Valorant**, **CODM**, **Apex Legends**.
@@ -249,14 +259,14 @@ erDiagram
 
 Crystal Scrims Manager includes built-in configurations for leading competitive titles:
 
-| Game | Default Slots | Format | Scoring Preset |
+| Discipline | Default Slots | Format | Scoring Preset |
 | :--- | :---: | :---: | :--- |
-| **BGMI / PUBG Mobile** | 25 | Squad (4v4 / BR) | Official BGIS/PMGC: 10-6-5-4-3-2-1-1 + 1 pt/kill |
-| **Free Fire** | 12 | Squad (BR) | Official FFWS Standard: 12-9-8-7-6-5-4-3-2-1 + 1 pt/kill |
-| **Valorant** | 2 | Custom (5v5) | Round Win/Loss + Combat Score differential |
-| **Call of Duty: Mobile** | 25 | Squad (BR) | World Championship BR standard points |
-| **Apex Legends** | 20 | Trios (BR) | ALGS Standard: 12-9-7-5-4-3-3-2-2-1-1-1-1-1-1 + 1 pt/kill |
-| **Custom Esports** | 2–100 | Any | Custom configurable slot rules and point tables |
+| **<img src="assets/default-game.svg" width="16" height="16" align="absmiddle" /> BGMI / PUBG Mobile** | 25 | Squad (4v4 / BR) | Official BGIS/PMGC: 10-6-5-4-3-2-1-1 + 1 pt/kill |
+| **<img src="assets/default-game.svg" width="16" height="16" align="absmiddle" /> Free Fire** | 12 | Squad (BR) | Official FFWS Standard: 12-9-8-7-6-5-4-3-2-1 + 1 pt/kill |
+| **<img src="assets/default-game.svg" width="16" height="16" align="absmiddle" /> Valorant** | 2 | Custom (5v5) | Round Win/Loss + Combat Score differential |
+| **<img src="assets/default-game.svg" width="16" height="16" align="absmiddle" /> Call of Duty: Mobile** | 25 | Squad (BR) | World Championship BR standard points |
+| **<img src="assets/default-game.svg" width="16" height="16" align="absmiddle" /> Apex Legends** | 20 | Trios (BR) | ALGS Standard: 12-9-7-5-4-3-3-2-2-1-1-1-1-1-1 + 1 pt/kill |
+| **<img src="assets/default-game.svg" width="16" height="16" align="absmiddle" /> Custom Esports** | 2–100 | Any | Custom configurable slot rules and point tables |
 
 ---
 
