@@ -5,7 +5,6 @@ import { LandingPage } from './pages/LandingPage';
 import { EventsPage } from './pages/EventsPage';
 import { EventDetailPage } from './pages/EventDetailPage';
 import { LeaderboardsPage } from './pages/LeaderboardsPage';
-import { DocsPage } from './pages/DocsPage';
 import { API_BASE } from './config/api';
 
 interface Lobby {
@@ -201,8 +200,6 @@ export default function App() {
             onSelectEvent={handleSelectEvent}
           />
         )}
-
-        {currentPage === 'docs' && <DocsPage />}
       </main>
 
       {/* Global Footer */}

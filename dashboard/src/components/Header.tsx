@@ -53,7 +53,6 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'landing', label: 'OVERVIEW', icon: Terminal, num: '01' },
     { id: 'events', label: 'EVENTS HUB', icon: Calendar, num: '02' },
     { id: 'standings', label: 'LEADERBOARDS', icon: Trophy, num: '03' },
-    { id: 'docs', label: 'RULES & COMMANDS', icon: FileText, num: '04' },
   ];
 
   const activeGuild = guilds.find((g) => g.guildId === selectedGuildId);

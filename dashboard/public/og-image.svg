@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" fill="none">
+  <!-- Deep Pitch Obsidian Canvas -->
+  <rect width="1200" height="630" fill="#050507" />
+
+  <!-- Industrial Cyber Grid Background -->
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#161A24" stroke-width="2" />
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)" />
+
+  <!-- Brutalist Outer Border Frame -->
+  <rect x="24" y="24" width="1152" height="582" stroke="#00F0FF" stroke-width="6" fill="none" />
+  <rect x="36" y="36" width="1128" height="558" stroke="#000000" stroke-width="4" fill="none" />
+
+  <!-- Top Status Bar -->
+  <rect x="60" y="60" width="1080" height="50" fill="#0D0F16" stroke="#222736" stroke-width="2" />
+  <circle cx="85" cy="85" r="8" fill="#39FF14" />
+  <text x="105" y="91" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="800" fill="#A1A1AA" letter-spacing="2">SYSTEM STATUS: <tspan fill="#39FF14">ONLINE</tspan> | LATENCY: <tspan fill="#00F0FF">&lt; 0.8S</tspan> | CLOUD: <tspan fill="#FFDF00">100% FREE TIER</tspan></text>
+  <text x="1020" y="91" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="900" fill="#FF0055">V2.0 RELEASE</text>
+
+  <!-- Big Central Brand Icon + Typography -->
+  <g transform="translate(60, 150)">
+    <!-- Shadow box -->
+    <rect x="14" y="14" width="110" height="110" fill="#000000" />
+    <!-- Icon box -->
+    <rect x="0" y="0" width="110" height="110" fill="#00F0FF" stroke="#000000" stroke-width="6" />
+    <!-- Diamond -->
+    <polygon points="55,15 95,55 55,95 15,55" fill="#050507" stroke="#000000" stroke-width="4" />
+    <polygon points="55,30 80,55 55,80 30,55" fill="#39FF14" />
+
+    <!-- Big Headline -->
+    <text x="145" y="55" font-family="'JetBrains Mono', monospace" font-size="58" font-weight="900" fill="#FFFFFF" letter-spacing="1">CRYSTAL<tspan fill="#FF0055">.</tspan><tspan fill="#00F0FF">SCRIMS</tspan></text>
+    <text x="145" y="105" font-family="'JetBrains Mono', monospace" font-size="32" font-weight="800" fill="#FFDF00" letter-spacing="3">ESPORTS TOURNAMENT COMMAND CONSOLE</text>
+  </g>
+
+  <!-- Sub-statement Banner -->
+  <rect x="60" y="300" width="1080" height="85" fill="#121520" stroke="#000000" stroke-width="4" />
+  <text x="90" y="340" font-family="'JetBrains Mono', monospace" font-size="22" font-weight="700" fill="#E4E4E7">
+    Real-Time Leaderboards • Ephemeral IDP Dispatch • Multi-Game Support (BGMI, Valo, FF)
+  </text>
+  <text x="90" y="370" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="600" fill="#71717A">
+    Universal multi-server web portal with instantaneous Discord synchronization.
+  </text>
+
+  <!-- Feature Metric Badges -->
+  <g transform="translate(60, 420)">
+    <!-- Badge 1 -->
+    <rect x="0" y="0" width="245" height="90" fill="#0D0F16" stroke="#00F0FF" stroke-width="3" />
+    <text x="20" y="35" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="800" fill="#A1A1AA">LIVE LEADERBOARDS</text>
+    <text x="20" y="70" font-family="'JetBrains Mono', monospace" font-size="24" font-weight="900" fill="#00F0FF">AUTO-REFRESH</text>
+
+    <!-- Badge 2 -->
+    <rect x="278" y="0" width="245" height="90" fill="#0D0F16" stroke="#39FF14" stroke-width="3" />
+    <text x="298" y="35" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="800" fill="#A1A1AA">ROOM CREDENTIALS</text>
+    <text x="298" y="70" font-family="'JetBrains Mono', monospace" font-size="24" font-weight="900" fill="#39FF14">EPHEMERAL IDP</text>
+
+    <!-- Badge 3 -->
+    <rect x="556" y="0" width="245" height="90" fill="#0D0F16" stroke="#FFDF00" stroke-width="3" />
+    <text x="576" y="35" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="800" fill="#A1A1AA">INFRASTRUCTURE</text>
+    <text x="576" y="70" font-family="'JetBrains Mono', monospace" font-size="24" font-weight="900" fill="#FFDF00">100% FREE TIER</text>
+
+    <!-- Badge 4 -->
+    <rect x="834" y="0" width="245" height="90" fill="#0D0F16" stroke="#FF0055" stroke-width="3" />
+    <text x="854" y="35" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="800" fill="#A1A1AA">THEME ENGINE</text>
+    <text x="854" y="70" font-family="'JetBrains Mono', monospace" font-size="24" font-weight="900" fill="#FF0055">DARK / LIGHT</text>
+  </g>
+
+  <!-- Bottom Attribution Footer -->
+  <rect x="60" y="540" width="1080" height="45" fill="#000000" />
+  <text x="80" y="568" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="700" fill="#71717A">
+    ENGINEERED BY <tspan fill="#00F0FF">SHUVRANSU SEKHAR SAHOO</tspan> FOR <tspan fill="#39FF14">CRYSTAL STUDIO LABS</tspan> • OPEN-SOURCE MIT
+  </text>
+  <text x="960" y="568" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="800" fill="#FFFFFF">GITHUB READY</text>
+</svg>
